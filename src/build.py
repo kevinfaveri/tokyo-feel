@@ -143,16 +143,18 @@ def beside(rows, dx, dz, late):
     return [(t if t in (0, CYCLE) else t + late, x + dx, z + dz, h) for t, x, z, h in rows]
 
 
-parent = [(0, -0.5, 1.55, AWAY), (15.4, -0.5, 1.55, AWAY), (23.4, -0.5, -2.7, AWAY), (32.6, -5.2, -2.7, AWAY),
-          (32.7, -3.3, 2.1, AWAY), (37.3, -0.5, 2.1, AWAY), (38.3, -0.5, 1.55, AWAY), (CYCLE, -0.5, 1.55, AWAY)]
-walker = [(0, 0.45, 1.72, AWAY), (15.7, 0.45, 1.72, AWAY), (23.9, 0.5, -2.72, AWAY), (33.0, 5.3, -2.72, AWAY),
-          (33.1, 3.4, 2.25, AWAY), (38.3, 0.45, 2.25, AWAY), (39.1, 0.45, 1.72, AWAY), (CYCLE, 0.45, 1.72, AWAY)]
-worker = [(0, 0.35, -2.35, HERE), (15.5, 0.35, -2.35, HERE), (23.5, 0.35, 2.2, HERE), (28.8, 3.5, 2.25, HERE),
-          (28.9, -5.3, -2.72, HERE), (33.0, -5.3, -2.72, HERE), (42.5, 0.35, -2.72, HERE), (43.2, 0.35, -2.35, HERE),
-          (CYCLE, 0.35, -2.35, HERE)]
-student = [(0, -0.35, -2.5, HERE), (15.9, -0.35, -2.5, HERE), (24.0, -0.35, 2.15, HERE), (29.4, -3.5, 2.2, HERE),
-           (29.5, 5.3, -2.78, HERE), (32.0, 5.3, -2.78, HERE), (41.6, -0.35, -2.78, HERE), (42.2, -0.35, -2.5, HERE),
-           (CYCLE, -0.35, -2.5, HERE)]
+# Everyone keeps to the left edge of the road, as the traffic does: those
+# going away from us on our left, those coming towards us on our right.
+parent = [(0, -0.82, 1.5, AWAY), (15.4, -0.82, 1.5, AWAY), (23.4, -0.82, -2.7, AWAY), (32.6, -5.2, -2.7, AWAY),
+          (32.7, -3.3, 2.1, AWAY), (37.3, -0.82, 2.1, AWAY), (38.3, -0.82, 1.5, AWAY), (CYCLE, -0.82, 1.5, AWAY)]
+walker = [(0, -0.8, 1.72, AWAY), (15.7, -0.8, 1.72, AWAY), (23.9, -0.8, -2.72, AWAY), (33.0, -5.3, -2.72, AWAY),
+          (33.1, 3.4, 2.25, AWAY), (38.3, -0.8, 2.25, AWAY), (39.1, -0.8, 1.72, AWAY), (CYCLE, -0.8, 1.72, AWAY)]
+worker = [(0, 0.8, -2.35, HERE), (15.5, 0.8, -2.35, HERE), (23.5, 0.8, 2.2, HERE), (28.8, 3.5, 2.25, HERE),
+          (28.9, -5.3, -2.72, HERE), (33.0, -5.3, -2.72, HERE), (42.5, 0.8, -2.72, HERE), (43.2, 0.8, -2.35, HERE),
+          (CYCLE, 0.8, -2.35, HERE)]
+student = [(0, 0.52, -2.6, HERE), (15.9, 0.52, -2.6, HERE), (24.0, 0.52, 2.15, HERE), (29.4, -3.5, 2.2, HERE),
+           (29.5, 5.3, -2.78, HERE), (32.0, 5.3, -2.78, HERE), (41.6, 0.52, -2.78, HERE), (42.2, 0.52, -2.6, HERE),
+           (CYCLE, 0.52, -2.6, HERE)]
 PARENT_OUT_OF_SIGHT, WALKER_OUT_OF_SIGHT, WORKER_OUT_OF_SIGHT, STUDENT_OUT_OF_SIGHT = 32.65, 33.05, 28.85, 29.45
 who = [(0, 1.0, 38, PARENT_OUT_OF_SIGHT), (2, 0.62, 38, PARENT_OUT_OF_SIGHT + 0.25), (0, 0.95, 40, WALKER_OUT_OF_SIGHT),
        (4, 1.0, 43, WALKER_OUT_OF_SIGHT + 0.1), (3, 1.02, 41, WORKER_OUT_OF_SIGHT), (1, 0.9, 38, STUDENT_OUT_OF_SIGHT)]

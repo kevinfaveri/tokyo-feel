@@ -455,12 +455,9 @@ fn tk_cast(who: i32, round: i32) -> bool {
 	if (tk_traffic_round(round)) {
 		return false;
 	}
-	if (g_theme == 1) {
-		return true;
-	}
 	let walk = who == 2 || who == 3;
-	if (g_theme == 0) {
-		// Morning: work and school every round, the school run in most, the
+	if (g_theme != 2) {
+		// By day: work and school every round, the school run in most, the
 		// dog's walk in the others.
 		if (who >= 4) {
 			return true;
@@ -1127,7 +1124,7 @@ fn run(input: PassInput) -> vec4<f32> {
 		if (z < 9.0 && z > -34.0) {
 			g_who = vec4<f32>(0.0, 1.0, 44.0, -ride.x * 5.0);
 			g_walk = ride.y;
-			tk_wheels(4, ro, rd, -0.78, z, -0.5 * K_PI);
+			tk_wheels(4, ro, rd, -0.25, z, -0.5 * K_PI);
 		}
 	}
 	if (pa.y > 0.5 && tk_traffic_round(ride_round)) {
