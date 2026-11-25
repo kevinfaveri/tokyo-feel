@@ -84,9 +84,142 @@ fn tk_dog(p: vec3<f32>) -> f32 {
 	return d;
 }
 
+fn tk_wheel(p: vec3<f32>, hub: vec2<f32>, radius: f32, tyre: f32) -> f32 {
+	return length(vec2<f32>(length(p.xy - hub) - radius, p.z)) - tyre;
+}
+
+// A bicycle (g_who.x 0) or a motorcycle (1) with its rider, wheels on the
+// ground at the origin, facing +x. g_who.z is the rider's coat, g_who.w how far the
+// pedals have turned; g_walk is 0 while it stands (one foot down), 1 riding.
+fn tk_two_wheeler(p: vec3<f32>) -> f32 {
+	let motor = g_who.x > 0.5;
+	var wheel_radius = 0.14;
+	var tyre = 0.016;
+	var axle = 0.27;
+	var seat_y = 0.45;
+	var bar_y = 0.5;
+	if (motor) {
+		wheel_radius = 0.1;
+		tyre = 0.04;
+		axle = 0.31;
+		seat_y = 0.42;
+		bar_y = 0.56;
+	}
+	let hub_y = wheel_radius + tyre;
+	var part = 7;
+	var d = min(tk_wheel(p, vec2<f32>(axle, hub_y), wheel_radius, tyre), tk_wheel(p, vec2<f32>(-axle, hub_y), wheel_radius, tyre));
+	var frame = tk_cap(p, vec3<f32>(axle, hub_y, 0.0), vec3<f32>(0.2, bar_y, 0.0), 0.014, 0.014);
+	frame = min(frame, tk_cap(p, vec3<f32>(0.2, bar_y, -0.11), vec3<f32>(0.2, bar_y, 0.11), 0.014, 0.014));
+	if (motor) {
+		frame = min(frame, tk_ell(p, vec3<f32>(-0.03, 0.29, 0.0), vec3<f32>(0.3, 0.1, 0.075)));
+		frame = min(frame, tk_ell(p, vec3<f32>(0.2, 0.4, 0.0), vec3<f32>(0.05, 0.13, 0.085)));
+	} else {
+		frame = min(frame, tk_cap(p, vec3<f32>(-0.03, hub_y, 0.0), vec3<f32>(-0.11, seat_y, 0.0), 0.013, 0.013));
+		frame = min(frame, tk_cap(p, vec3<f32>(-0.1, 0.4, 0.0), vec3<f32>(0.2, 0.42, 0.0), 0.013, 0.013));
+		frame = min(frame, tk_cap(p, vec3<f32>(-0.03, hub_y, 0.0), vec3<f32>(0.2, 0.4, 0.0), 0.013, 0.013));
+		frame = min(frame, tk_cap(p, vec3<f32>(-axle, hub_y, 0.0), vec3<f32>(-0.1, 0.4, 0.0), 0.011, 0.011));
+		frame = min(frame, tk_cap(p, vec3<f32>(-axle, hub_y, 0.0), vec3<f32>(-0.03, hub_y, 0.0), 0.011, 0.011));
+	}
+	if (frame < d) {
+		d = frame;
+		part = 6;
+	}
+	let saddle = tk_ell(p, vec3<f32>(-0.12, seat_y, 0.0), vec3<f32>(0.1, 0.028, 0.06));
+	if (saddle < d) {
+		d = saddle;
+		part = 7;
+	}
+	if (motor) {
+		let head_lamp = length(p - vec3<f32>(0.25, 0.45, 0.0)) - 0.045;
+		if (head_lamp < d) {
+			d = head_lamp;
+			part = 9;
+		}
+		let tail_lamp = length(p - vec3<f32>(-0.34, 0.36, 0.0)) - 0.035;
+		if (tail_lamp < d) {
+			d = tail_lamp;
+			part = 10;
+		}
+	}
+	var lp = p;
+	let shoulder_y = seat_y + 0.31;
+	var coat = tk_cap(p, vec3<f32>(-0.1, seat_y + 0.08, 0.0), vec3<f32>(0.0, shoulder_y - 0.05, 0.0), 0.09, 0.085);
+	coat = min(coat, tk_cap(p, vec3<f32>(0.0, shoulder_y, 0.115), vec3<f32>(0.19, bar_y + 0.03, 0.1), 0.028, 0.023));
+	coat = min(coat, tk_cap(p, vec3<f32>(0.0, shoulder_y, -0.115), vec3<f32>(0.19, bar_y + 0.03, -0.1), 0.028, 0.023));
+	if (coat < d) {
+		d = coat;
+		part = 1;
+		lp = vec3<f32>(p.x, p.y - seat_y + 0.3, p.z);
+	}
+	let head_at = vec3<f32>(0.05, shoulder_y + 0.12, 0.0);
+	var head = length(p - head_at) - 0.06;
+	if (motor) {
+		head = length(p - head_at) - 0.072;
+	}
+	if (head < d) {
+		d = head;
+		part = 2;
+		if (motor) {
+			part = 12;
+		}
+		lp = p - head_at + vec3<f32>(0.005, 0.625, 0.0);
+	}
+	for (var side = -1.0; side < 1.5; side = side + 2.0) {
+		let turn = g_who.w + (side + 1.0) * 0.5 * K_PI;
+		var foot = vec3<f32>(-0.03 + 0.07 * cos(turn), hub_y + 0.07 * sin(turn) + 0.02, side * 0.075);
+		if (motor) {
+			foot = vec3<f32>(0.02, 0.17, side * 0.09);
+		}
+		if (side > 0.0) {
+			foot = mix(vec3<f32>(-0.02, 0.03, 0.17), foot, g_walk);
+		}
+		let hip = vec3<f32>(-0.09, seat_y + 0.06, side * 0.06);
+		let knee = mix(hip, foot, 0.5) + vec3<f32>(0.1, 0.05, 0.0);
+		let leg = min(tk_cap(p, hip, knee, 0.042, 0.035), tk_cap(p, knee, foot, 0.035, 0.03));
+		if (leg < d) {
+			d = leg;
+			part = 0;
+			lp = vec3<f32>(p.x, 0.2 + p.y - foot.y, p.z);
+			if (length(p - foot) < 0.045) {
+				lp.y = 0.0;
+			}
+		}
+	}
+	g_part = part;
+	g_lp = lp;
+	return d;
+}
+
+// A small car, wheels on the ground at the origin, facing +x; g_who.z is
+// its paint.
+fn tk_car(p: vec3<f32>) -> f32 {
+	var part = 6;
+	var d = tk_box(p - vec3<f32>(0.0, 0.25, 0.0), vec3<f32>(0.7, 0.11, 0.27)) - 0.035;
+	let cabin = tk_box(p - vec3<f32>(-0.06, 0.47, 0.0), vec3<f32>(0.47, 0.1, 0.235)) - 0.04;
+	if (cabin < d) {
+		d = cabin;
+		part = 11;
+	}
+	let q = vec3<f32>(abs(p.x) - 0.45, p.y - 0.1, abs(p.z) - 0.25);
+	let wheel = max(length(q.xy) - 0.1, abs(q.z) - 0.055);
+	if (wheel < d) {
+		d = wheel;
+		part = 7;
+	}
+	g_part = part;
+	g_lp = p;
+	return d;
+}
+
 fn tk_figure(id: i32, p: vec3<f32>) -> f32 {
 	if (id == 3) {
 		return tk_dog(p);
+	}
+	if (id == 4) {
+		return tk_two_wheeler(p);
+	}
+	if (id == 5) {
+		return tk_car(p);
 	}
 	return tk_person(p);
 }
@@ -135,6 +268,41 @@ fn tk_try(id: i32, o: vec3<f32>, d: vec3<f32>, R: mat3x3<f32>, lo: vec3<f32>, hi
 				}
 			} else if (part == 4) {
 				m = 44;
+			} else if (part == 6) {
+				m = i32(g_who.z);
+				det = 0.5 + 0.6 * (lp.y - 0.3);
+				if (id == 5) {
+					let lamp = lp.y > 0.21 && lp.y < 0.33 && abs(abs(lp.z) - 0.19) < 0.075;
+					if (lp.y < 0.17) {
+						m = 41;
+					} else if (lamp && lp.x > 0.71) {
+						m = 16;
+					} else if (lamp && lp.x < -0.71) {
+						m = 23;
+					}
+				} else if (id == 4) {
+					m = 45;
+				}
+			} else if (part == 7) {
+				m = 37;
+			} else if (part == 9) {
+				m = 16;
+			} else if (part == 10) {
+				m = 23;
+			} else if (part == 11) {
+				m = i32(g_who.z);
+				let along = abs(lp.x + 0.06);
+				let glass_high = lp.y > 0.41 && lp.y < 0.57;
+				let side_glass = abs(lp.z) > 0.25 && along < 0.42 && along > 0.03;
+				let end_glass = along > 0.48 && abs(lp.z) < 0.22;
+				if (glass_high && (side_glass || end_glass)) {
+					m = 21;
+				}
+			} else if (part == 12) {
+				m = 49;
+				if (lp.x > 0.035 && lp.y < 0.65 && lp.y > 0.6) {
+					m = 37;
+				}
 			} else if (lp.y < 0.05) {
 				m = 37;
 			}
@@ -224,6 +392,19 @@ fn tk_yaw(a: f32) -> mat3x3<f32> {
 	return mat3x3<f32>(vec3<f32>(c, 0.0, s), vec3<f32>(0.0, 1.0, 0.0), vec3<f32>(-s, 0.0, c));
 }
 
+// A two-wheeler (4) or a car (5) on the road at (x, z), heading `yaw`.
+fn tk_wheels(id: i32, ro: vec3<f32>, rd: vec3<f32>, x: f32, z: f32, yaw: f32) {
+	let at = vec3<f32>(x, tk_floor_y(z), z);
+	let R = tk_yaw(yaw);
+	var lo = vec3<f32>(-0.5, -0.02, -0.24);
+	var hi = vec3<f32>(0.5, 1.0, 0.24);
+	if (id == 5) {
+		lo = vec3<f32>(-0.8, -0.02, -0.36);
+		hi = vec3<f32>(0.8, 0.68, 0.36);
+	}
+	tk_try(id, (ro - at) * R, rd * R, R, lo, hi);
+}
+
 // ---- colour ----------------------------------------------------------------
 
 // Which of the three the scene plays (0 sunrise, 1 sunset, 2 night), and how
@@ -239,9 +420,41 @@ fn tk_pal(i: i32) -> vec3<f32> {
 	return K_PAL[i];
 }
 
+// The round a bicycle comes in: it waits at the gate, rings and rides on.
+fn tk_cyclist_round(round: i32) -> bool {
+	return (g_theme == 0 && round == 2) || (g_theme == 1 && round == 0);
+}
+
+// The round the road's traffic waits at the gates, one from each side: two
+// cars at sunset; at night a motorcycle and a car. Nobody is on foot then.
+fn tk_traffic_round(round: i32) -> bool {
+	return (g_theme == 1 && round == 2) || (g_theme == 2 && round == 5);
+}
+
+// How far a rider still is from where it stops (above 0), or has gone on
+// from there (below 0), and how much it is moving (0 to 1).
+fn tk_ride(ph: f32, stops_at: f32, goes_at: f32, pace_in: f32, pace_out: f32) -> vec2<f32> {
+	var since = stops_at - ph;
+	var rate = pace_in;
+	if (ph > goes_at) {
+		since = ph - goes_at;
+		rate = -pace_out;
+	} else if (ph >= stops_at) {
+		return vec2<f32>(0.0);
+	}
+	var gone = since * since;
+	if (since > 3.0) {
+		gone = 9.0 + 6.0 * (since - 3.0);
+	}
+	return vec2<f32>(rate * gone, clamp(since * 1.2, 0.0, 1.0));
+}
+
 // Who is out, by theme and round. 0 a parent, 1 their child, 2 someone with
 // 3 a dog, 4 an office worker, 5 a student.
 fn tk_cast(who: i32, round: i32) -> bool {
+	if (tk_traffic_round(round)) {
+		return false;
+	}
 	if (g_theme == 1) {
 		return true;
 	}
@@ -940,6 +1153,46 @@ fn run(input: PassInput) -> vec4<f32> {
 		}
 	}
 
+	// Wheels. Each rides up, waits at its gate and goes on when it opens. (A
+	// rider sets out for the next round late in this one, far down the
+	// street or behind us.)
+	var ride_ph = ph;
+	var ride_round = round;
+	if (ph > 33.0) {
+		ride_ph = ph - K_CYCLE;
+		ride_round = (round + 1) % 7;
+	}
+	if (pa.y > 0.5 && tk_cyclist_round(ride_round)) {
+		let ride = tk_ride(ride_ph, 4.4, 15.2, 0.35, 0.3);
+		let z = 2.0 + ride.x;
+		if (z < 9.0 && z > -34.0) {
+			g_who = vec4<f32>(0.0, 1.0, 44.0, -ride.x * 5.0);
+			g_walk = ride.y;
+			tk_wheels(4, ro, rd, -0.78, z, -0.5 * K_PI);
+		}
+	}
+	if (pa.y > 0.5 && tk_traffic_round(ride_round)) {
+		let near = tk_ride(ride_ph, 3.4, 15.3, 0.6, 0.55);
+		let near_z = 2.05 + near.x;
+		if (near_z < 9.0 && near_z > -34.0) {
+			g_walk = near.y;
+			if (night) {
+				g_who = vec4<f32>(1.0, 1.0, 40.0, 0.0);
+				tk_wheels(4, ro, rd, -0.47, near_z - 0.3, -0.5 * K_PI);
+			} else {
+				g_who = vec4<f32>(0.0, 1.0, 49.0, 0.0);
+				tk_wheels(5, ro, rd, -0.47, near_z, -0.5 * K_PI);
+			}
+		}
+		let far = tk_ride(ride_ph, 4.2, 15.6, 0.6, 0.55);
+		let far_z = -3.05 - far.x;
+		if (far_z < 9.0 && far_z > -34.0) {
+			g_walk = far.y;
+			g_who = vec4<f32>(0.0, 1.0, select(39.0, 17.0, night), 0.0);
+			tk_wheels(5, ro, rd, 0.47, far_z, 0.5 * K_PI);
+		}
+	}
+
 	// What the ray met, lit: the evening's soft light, the lamps' warm pools,
 	// and the train's windows spilling light over the road as it passes.
 	var acc = vec3<f32>(0.0);
@@ -961,7 +1214,7 @@ fn run(input: PassInput) -> vec4<f32> {
 			l = l + (g_det - 0.5) * 0.4;
 			m = g_m;
 			ny = g_n.y;
-			if (g_id == 1 || g_id == 3) {
+			if (g_id == 1 || g_id >= 3) {
 				for (var i = 0; i < N_LIGHT; i = i + 1) {
 					let lv = K_LIGHT[i].xyz - p;
 					let ld = max(length(lv), 1e-4);
