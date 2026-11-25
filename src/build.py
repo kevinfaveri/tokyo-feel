@@ -35,7 +35,10 @@ def hx(h):
 
 # The palette: a ramp per family of things, darkest first. The sky's ramp
 # comes first: it is also what far things fade into.
-SKY = ['#0b0d1f', '#141733', '#1f2350', '#30306e', '#4b3f86', '#75529a', '#a86aa3', '#d98aa6', '#f2b3a7', '#fbdcc0']
+SUNRISE = ['#4f78b0', '#6690c2', '#83a8d2', '#a3bfdf', '#c3d3e6', '#e0dbe2', '#f5ddd3', '#fbe3c0', '#fdf0cf', '#fffbea']
+SUNSET = ['#3b4f8a', '#52579a', '#7361a4', '#9a6fa8', '#c47fa0', '#e39590', '#f4ad7c', '#f9c877', '#fde08e', '#fff3c4']
+NIGHT = ['#0b0d1f', '#141733', '#1f2350', '#30306e', '#4b3f86', '#75529a', '#a86aa3', '#d98aa6', '#f2b3a7', '#fbdcc0']
+SKY = SUNSET
 GREY = ['#14151f', '#262836', '#3e4152', '#636779', '#9a9eac', '#d8dbe0']
 PINK = ['#3a1c33', '#6b2f52', '#a84f78', '#de86a3', '#f7b8c9', '#fde6ea']
 GREEN = ['#0f2219', '#1c3d2a', '#2f6340', '#5a9457', '#9cc77c']
@@ -71,7 +74,8 @@ for dz, drop, sag in ((-0.18, 0.0, 0.14), (0.18, 0.0, 0.2), (0.0, 0.3, 0.26)):
     wire((2.75, top - drop, -1.62 + dz), (9.0, top - drop, -1.62 + dz), sag + 0.06, 3)
 
 # Street lamps: x, z, height, and how far the arm reaches (along x).
-lamps = [(-1.3, 1.62, 1.5, 0.3), (1.32, -2.3, 1.5, -0.3)]
+lamps = [(-1.3, 1.62, 1.5, 0.3), (1.32, -2.3, 1.5, -0.3), (-1.32, -5.2, 1.5, 0.3), (1.32, -8.0, 1.5, -0.3),
+         (-1.32, -11.0, 1.5, 0.3), (1.32, -14.0, 1.5, -0.3)]
 vend = (1.76, 1.42)
 lights = [(l[0] + l[3], FLOOR + l[2] - 0.05, l[1], 1.0) for l in lamps] + [(vend[0], FLOOR + 0.42, vend[1] + 0.3, 0.45)]
 
@@ -99,7 +103,6 @@ trees = [
     tree(1.5, -3.6, 0.9, 1, 0.75, 0.04),
     tree(3.95, -3.5, 1.1, 0, 1.0, -0.06),
     tree(-3.1, -5.6, 1.0, 0, 0.9, 0.0),
-    tree(0.2, -6.4, 0.9, 0, 0.8, 0.0),
     tree(5.6, -5.2, 1.1, 1, 0.95, 0.0),
 ]
 
@@ -111,8 +114,13 @@ bushes = [(x, FLOOR + r * 0.45, z, r) for x, z, r in [
 
 # Houses: centre x, centre z, half width, half depth; then wall height, roof
 # height (0 for a flat roof) and the wall's material.
-house_c = [(-2.75, -4.3, 0.95, 0.6), (2.7, -4.4, 0.85, 0.6), (-6.0, -7.2, 1.4, 0.7), (4.9, -7.6, 1.5, 0.7), (0.0, -9.5, 1.2, 0.7)]
-house_h = [(0.95, 0.42, 8, 0), (1.35, 0.4, 8, 0), (2.5, 0.0, 20, 0), (3.0, 0.0, 20, 0), (3.6, 0.0, 20, 0)]
+# (The street runs on between two rows of them, to the horizon.)
+house_c = [(-2.75, -4.3, 0.95, 0.6), (2.7, -4.4, 0.85, 0.6), (-6.0, -7.2, 1.4, 0.7), (4.9, -7.6, 1.5, 0.7),
+           (-2.7, -7.3, 0.95, 0.9), (2.75, -7.9, 0.95, 1.0), (-2.9, -10.8, 1.05, 1.2), (2.95, -11.4, 1.05, 1.2),
+           (-3.1, -15.0, 1.15, 1.6), (3.1, -15.6, 1.15, 1.6)]
+house_h = [(0.95, 0.42, 8, 0), (1.35, 0.4, 8, 0), (2.5, 0.0, 20, 0), (3.0, 0.0, 20, 0),
+           (1.9, 0.0, 20, 0), (2.5, 0.0, 8, 0), (3.2, 0.0, 20, 0), (2.4, 0.0, 20, 0),
+           (3.9, 0.0, 20, 0), (3.3, 0.0, 8, 0)]
 
 # Who walks here: kind (0 a long coat, 1 a student, 2 a child, 3 an office
 # worker, 4 a dog), size and coat. Each has its path through the round, as
@@ -151,6 +159,7 @@ paths = [keys(parent), keys(beside(parent, 0.27, 0.1, 0.25)), keys(walker), keys
 
 T = []
 T.append("const N_PAL: i32 = %d;\n" % len(PAL) + table("K_PAL", [hx(c) for c in PAL]))
+T.append(table("K_SKY", [hx(c) for c in SUNRISE + SUNSET + NIGHT]))
 T.append("const N_XING: i32 = %d;\n" % len(xing) + table("K_XING", xing))
 T.append("const N_POLE: i32 = %d;\n" % len(poles) + table("K_POLE", poles))
 T.append("const N_WIRE: i32 = %d;\n" % len(wire_a) + table("K_WIRE_A", wire_a) + table("K_WIRE_B", wire_b))

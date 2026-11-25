@@ -325,9 +325,9 @@ fn run(input: PassInput) -> vec4<f32> {
 	// Fallen petals, on whatever lies flat.
 	var petal = false;
 	if ((m == 0 || m == 1 || m == 3 || m == 7) && n.y > 0.7) {
-		var share = 0.032;
+		var share = 0.011;
 		if (m == 3) {
-			share = 0.11;
+			share = 0.04;
 		}
 		petal = tk_h31(floor(vec3<f32>(p.x * 27.0, 3.0, p.z * 27.0))) < share;
 	}
@@ -341,21 +341,40 @@ fn run(input: PassInput) -> vec4<f32> {
 		let fy = fract(gy);
 		if (q.y > 0.14 && q.y < hh.x - 0.06 && abs(q.x) < hc.z - 0.06 && fx > 0.22 && fx < 0.78 && fy > 0.3 && fy < 0.82) {
 			m = 21;
-			if (tk_h31(vec3<f32>(floor(gx), floor(gy), f32(obj) + 3.0)) > 0.42) {
+			// (10 is lit at any hour, 53 only at night.)
+			let lit = tk_h31(vec3<f32>(floor(gx), floor(gy), f32(obj) + 3.0));
+			if (lit > 0.88) {
 				m = 10;
+			} else if (lit > 0.42) {
+				m = 53;
 			}
 		}
 	}
 	// The vending machine's lit front, and what it sells.
 	if (m == 17 && n.z > 0.6 && abs(q.x) < 0.16 && q.y > -0.2 && q.y < 0.3) {
-		m = 18;
-		if (fract(q.y * 7.0) < 0.55) {
-			let pick = tk_h31(vec3<f32>(floor(q.x * 22.0), floor(q.y * 7.0), 1.0));
-			if (pick < 0.3) {
-				m = 23;
-			} else if (pick < 0.55) {
-				m = 24;
+		// Three shelves of four drinks, in front of a lit panel.
+		m = 16;
+		let across = (q.x + 0.16) * 12.5;
+		let shelf = (q.y + 0.2) * 6.0;
+		if (fract(shelf) < 0.12) {
+			m = 17;
+		} else if (fract(shelf) < 0.74 && abs(fract(across) - 0.5) < 0.3) {
+			let pick = (i32(floor(across)) + 2 * i32(floor(shelf))) % 3;
+			m = 23;
+			if (pick == 1) {
+				m = 51;
+			} else if (pick == 2) {
+				m = 10;
 			}
+		}
+	}
+	// Its coin slot and its tray.
+	if (m == 17 && n.z > 0.6 && abs(q.x) < 0.16) {
+		if (q.y < -0.24 && q.y > -0.33 && q.x > 0.06 && q.x < 0.13) {
+			m = 18;
+		}
+		if (q.y < -0.4 && q.y > -0.5 && abs(q.x) < 0.11) {
+			m = 13;
 		}
 	}
 	// Every other bush is in flower.
@@ -366,7 +385,7 @@ fn run(input: PassInput) -> vec4<f32> {
 
 	let grain = tk_grain(m, p);
 	// The evening's light: soft, from the front and above.
-	let ndl = dot(n, normalize(vec3<f32>(-0.35, 0.65, 0.65)));
+	let ndl = dot(n, normalize(vec3<f32>(-0.5, 0.55, 0.6)));
 	var l = 0.2 + 0.8 * clamp(ndl * 0.7 + 0.3, 0.0, 1.0);
 	l = l * mix(0.4, 1.0, ao);
 	l = l + (grain - 0.5) * 0.4;
@@ -374,9 +393,19 @@ fn run(input: PassInput) -> vec4<f32> {
 		m = 5;
 		l = 0.78 + 0.2 * grain;
 	}
+	// Some of what has fallen is leaves, green or yellowed.
+	if (petal) {
+		let leaf = tk_h31(floor(vec3<f32>(p.x * 27.0, 8.0, p.z * 27.0)));
+		if (leaf > 0.8) {
+			m = 44;
+		} else if (leaf > 0.58) {
+			m = 6;
+			l = 0.9;
+		}
+	}
 	// Warm light pooling under the lamps and by the vending machine.
 	var lw = 0.0;
-	if (m != 10 && m != 16 && m != 18 && m != 23 && m != 24) {
+	if (m != 10 && m != 16 && m != 18 && m != 23 && m != 24 && m != 50 && m != 51 && m != 53) {
 		for (var i = 0; i < N_LIGHT; i = i + 1) {
 			let lv = K_LIGHT[i].xyz - p;
 			let ld = max(length(lv), 1e-4);
