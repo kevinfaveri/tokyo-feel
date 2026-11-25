@@ -36,7 +36,7 @@ local chats_setting = zeron.setting("chats")
 local strength_setting = zeron.setting("strength")
 local volume_setting = zeron.setting("volume")
 local sound_on = zeron.store("sound", false)
-local fade_on = zeron.store("fade", true)
+local fade_choice = zeron.store("fade", "full")
 local theme_choice = zeron.store("theme", "sunset")
 local theme_of_the_hour = zeron.store("theme-of-the-hour", "sunset")
 
@@ -92,6 +92,17 @@ local CHAT_ALPHA = {
 	light = { subtle = 0.2, medium = 0.3, vivid = 0.45 },
 }
 local WALL_MUTED = 0.12
+local FADES = { "full", "half", "off" }
+local SHARE_OF_FADE = { full = 1, half = 0.5, off = 0 }
+local FADE_LABEL = { full = "100%", half = "50%", off = "off" }
+
+-- (The store once held true or false.)
+local function known_fade(saved: any): string
+	if saved == false then
+		return "off"
+	end
+	return if SHARE_OF_FADE[saved] ~= nil then saved else "full"
+end
 
 -- The round in src/live.wgsl: 44 seconds, the first one 2.5 seconds after
 -- the programme starts.
@@ -306,8 +317,9 @@ local function restart_the_programme()
 	programme_seconds_shown:set(0)
 end
 
-local function toggle_fade()
-	fade_on:set(fade_on:peek() == false)
+local function choose_next_fade()
+	local current = table.find(FADES, known_fade(fade_choice:peek())) or 1
+	fade_choice:set(FADES[current % #FADES + 1])
 end
 
 local function toggle_sound()
@@ -414,10 +426,10 @@ zeron.place {
 	fill = true,
 	replace = function(): Node
 		return ui.presence(function(): string
-			return `{if fade_on:get() == false then "clear" else "faded"}|{look_key()}`
+			return `{known_fade(fade_choice:get())}|{look_key()}`
 		end, function(key: string): Node
 			local fade, look = string.match(key, "^(.-)|(.*)$")
-			return Scene("wall", look_from(look or ""), 1, if fade == "clear" then 0 else WALL_MUTED)
+			return Scene("wall", look_from(look or ""), 1, WALL_MUTED * SHARE_OF_FADE[fade or "full"])
 		end, { w_full = true, h_full = true })
 	end,
 }
@@ -443,15 +455,15 @@ zeron.place {
 					return "off"
 				end
 				local scheme = if appearance and appearance() == "light" then "light" else "dark"
-				local strength = if fade_on:get() == false then "clear" else strength_setting:get() or "subtle"
-				return `{scheme}|{strength}|{look_key()}`
+				return `{scheme}|{strength_setting:get() or "subtle"}|{known_fade(fade_choice:get())}|{look_key()}`
 			end, function(key: string): Node
 				if key == "off" then
 					return ui.div {}
 				end
-				local scheme, strength, look = string.match(key, "^(.-)|(.-)|(.*)$")
+				local scheme, strength, fade, look = string.match(key, "^(.-)|(.-)|(.-)|(.*)$")
 				local levels = CHAT_ALPHA[scheme or "dark"] or CHAT_ALPHA.dark
-				local alpha = if strength == "clear" then 1 else levels[strength or "subtle"] or levels.subtle
+				local faded_alpha = levels[strength or "subtle"] or levels.subtle
+				local alpha = 1 - (1 - faded_alpha) * SHARE_OF_FADE[fade or "full"]
 				return Scene("chat", look_from(look or ""), alpha, 0)
 			end, { w_full = true, h_full = true }),
 		}
@@ -504,9 +516,9 @@ local function Corner(): Node
 				id = "tokyo-feel-fade",
 				label = "Crossing fade",
 				words = function(): string
-					return if fade_on:get() == false then "Turn fade on" else "Turn fade off"
+					return `Fade: {FADE_LABEL[known_fade(fade_choice:get())]}`
 				end,
-				on_click = toggle_fade,
+				on_click = choose_next_fade,
 			},
 			CornerButton {
 				id = "tokyo-feel-restart",
