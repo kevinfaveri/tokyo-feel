@@ -95,12 +95,6 @@ local WALL_MUTED = 0.12
 local FADES = { "full", "half", "off" }
 local SHARE_OF_FADE = { full = 1, half = 0.5, off = 0 }
 local FADE_LABEL = { full = "100%", half = "50%", off = "off" }
--- (A plugin can't restyle Zeron's messages or read their boxes. So with
--- less fade, the column the messages are in gets a panel behind it.)
-local MESSAGE_COLUMN_WIDTH = 684
-local READING_PANEL_MARGIN = 28
-local READING_PANEL_COLOUR = { dark = "#17171c", light = "#ffffff" }
-local READING_PANEL_ALPHA = { half = "8c", off = "eb" }
 
 -- (The store once held true or false.)
 local function known_fade(saved: any): string
@@ -440,19 +434,6 @@ zeron.place {
 	end,
 }
 
-local function ReadingPanel(scheme: string, fade: string): Node
-	local alpha = READING_PANEL_ALPHA[fade]
-	if alpha == nil then
-		return ui.div {}
-	end
-	return ui.div {
-		w = MESSAGE_COLUMN_WIDTH + 2 * READING_PANEL_MARGIN,
-		max_w = "100%",
-		h_full = true,
-		bg = (READING_PANEL_COLOUR[scheme] or READING_PANEL_COLOUR.dark) .. alpha,
-	}
-end
-
 -- Behind a chat it's placed by the transcript: the column holding it is a
 -- positioned box (the area messages scroll in).
 zeron.place {
@@ -484,17 +465,7 @@ zeron.place {
 				local faded_alpha = levels[strength or "subtle"] or levels.subtle
 				local alpha = 1 - (1 - faded_alpha) * SHARE_OF_FADE[fade or "full"]
 				return Scene("chat", look_from(look or ""), alpha, 0)
-			end, { absolute = true, left = 0, right = 0, top = 0, bottom = 0 }),
-			ui.presence(function(): string
-				if chats_setting:get() == false then
-					return "off"
-				end
-				local scheme = if appearance and appearance() == "light" then "light" else "dark"
-				return `{scheme}|{known_fade(fade_choice:get())}`
-			end, function(key: string): Node
-				local scheme, fade = string.match(key, "^(.-)|(.*)$")
-				return ReadingPanel(scheme or "dark", fade or "full")
-			end, { absolute = true, left = 0, right = 0, top = 0, bottom = 0, direction = "row", justify = "center" }),
+			end, { w_full = true, h_full = true }),
 		}
 	end,
 }

@@ -140,9 +140,9 @@
   "signature": {
     "files": {
       "LICENSE": "66865bda0187c03cdf93e29da2d90ea756a76c0013da8380404c16a86d67316d",
-      "README.md": "6c20c6761b66301f482c432d321241861839d675e5904e461b3d2a6c1aeb678b",
+      "README.md": "8f5784d3291ea06c12c806375506db49b24416d01949f9a47fbf621639c1fb7b",
       "icon.svg": "1c03ef1bb598e64697fa38545f42ed0480ea77bdf2e9954d1f5fae6ca723b696",
-      "init.luau": "3f45b52f02857871d8066b482508cc537c22a1491132dbb55191a19752270011",
+      "init.luau": "37d21f61b80b4c399417429e03b36dcf32e5a25dbe0000e9bea84a1eb8110a18",
       "locales/en.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
       "player.js": "ceb3efa770400cd351d2a2e5cb7c3d16c4074645855fc9484d1e4691ba1d150d",
       "sounds/air-night.m4a": "28d4c16e35fb32be550adea735f3ef8fe9d27d1ec797d125f3dac1c68928a4de",
@@ -180,7 +180,7 @@
       "zeron.luau": "178b79b55566c9643b26181539b8e1348482179a169da98ba384cd66f3f8a483"
     },
     "key": "nEJJsJc5eIrmIbW6qup5AO2JmwpmRpl-oO9CVbuohWc",
-    "sig": "Sb-ZPQaxCPwsoSfSwnXH14eXLnkCN3wPaX9dwl-bEplh8-2fVzBkBX3rCdn7vDVFkI_SSzlzpGhAF_-5f3CUCA"
+    "sig": "aBF7WwqLCaTEK4asAEXuzwwbWT5GF3NT1cgMcibBCxFL_m2JdPhqtzaxer4KqjepbyQFD5IoTg85NAhIySrPAA"
   },
   "ui": {
     "change": [
