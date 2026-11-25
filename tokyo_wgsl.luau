@@ -2392,8 +2392,7 @@ fn run(input: PassInput) -> vec4<f32> {
 	let lap = floor(e / K_CYCLE);
 	let ph = e - lap * K_CYCLE;
 	// Seven rounds make a theme's programme, five minutes long. A commuter
-	// train and a Shinkansen take turns, from one side and the other; at
-	// night one commuter train gives way to a freight train.
+	// train and a Shinkansen take turns, from one side and the other.
 	g_theme = i32(clamp(pc.z, 0.0, 2.0) + 0.5);
 	let night = g_theme == 2;
 	let first = lap - 1.0;
@@ -2403,7 +2402,6 @@ fn run(input: PassInput) -> vec4<f32> {
 		g_prog = 0.0;
 	}
 	let bullet = (round & 1) == 1;
-	let freight = night && round == 4;
 	let odd = (((round + 1) / 2) & 1) == 1;
 	var livery = (round / 2) % 3;
 	var train_speed = K_SPEED;
@@ -2553,45 +2551,6 @@ fn run(input: PassInput) -> vec4<f32> {
 					} else if (fract(along * 0.55 + yl * 1.3) < 0.09) {
 						// (The glass catches the sky, in slanting bands.)
 						m = 24;
-					}
-				}
-				if (freight) {
-					// Containers on flat wagons, behind a blue locomotive.
-					let wagon = floor(along / K_CAR);
-					let pick = tk_h31(vec3<f32>(wagon, 7.0, 3.0));
-					m = 39;
-					if (pick < 0.3) {
-						m = 38;
-					} else if (pick < 0.55) {
-						m = 36;
-					} else if (pick < 0.75) {
-						m = 6;
-					}
-					det = 0.42 + 0.16 * step(0.5, fract(along * 5.0));
-					if (cu > 0.47 && cu < 0.53) {
-						m = 33;
-						det = 0.3;
-					}
-					if (wagon < 0.5) {
-						m = 38;
-						det = 0.5;
-						if (yl > 0.58 && yl < 0.8 && cu < 0.2) {
-							m = 32;
-						}
-						if (yl > 0.36 && yl < 0.44) {
-							m = 12;
-						}
-					}
-					if (yl < 0.2) {
-						m = 33;
-						det = 0.5;
-						if (abs(abs(cu - 0.5) - 0.32) < 0.07) {
-							det = 0.95;
-						}
-					}
-					if (cu < 0.03 || cu > 0.97 || (yl > 0.86 && wagon > 0.5)) {
-						m = 33;
-						det = 0.3;
 					}
 				}
 				if (bullet) {

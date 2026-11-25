@@ -30,7 +30,7 @@ A round of the crossing takes 44 seconds, and seven rounds make a theme's progra
 
 **Sunset.** A sky from violet to gold, the sun sinking. Everyone is out. Someone on a bicycle waits at the gate, rings and rides on (round 1); two cars wait, one on each side of the track, and pass each other when the gates rise (round 3); the black cat comes, sits and goes (rounds 2 and 5); crows (round 4); the child's red balloon gets away (round 6); a gust blows the falling petals down the street (round 7).
 
-**Night.** A dark sky with a crescent moon, stars and a shooting star now and then; the street lamps and the windows lit, the Skytree lit blue and violet, moths about the near lamp. Few people: someone home late from the office, the dog's last walk twice, a student back from cram school once. The cat comes three times. Round 5's commuter train is a freight train. In round 6 a motorcycle waits on this side and a car, its headlamps on, on the far side. Crickets, an owl, a dog barking far off, a can dropping in the vending machine.
+**Night.** A dark sky with a crescent moon, stars and a shooting star now and then; the street lamps and the windows lit, the Skytree lit blue and violet, moths about the near lamp. Few people: someone home late from the office, the dog's last walk twice, a student back from cram school once. The cat comes three times. In round 6 a motorcycle waits on this side and a car, its headlamps on, on the far side. Crickets, an owl, a dog barking far off, a can dropping in the vending machine.
 
 ## Sound
 

@@ -110,17 +110,16 @@ def side_to_side(t, arrives, leaves, from_right):
     return -position if from_right else position
 
 
-def commuter_train(from_right, freight):
+def commuter_train(from_right):
     t = seconds(ROUND_CLIP_SECONDS)
     near = smoothstep(TRAIN_ARRIVES - 2.2, TRAIN_ARRIVES + 0.5, t) * (1.0 - smoothstep(TRAIN_LEAVES - 0.3, TRAIN_LEAVES + 2.6, t))
-    rumble_band = band(22.0, 120.0) if freight else band(28.0, 170.0)
-    rumble = shaped_noise(ROUND_CLIP_SECONDS, rumble_band) * (0.75 if freight else 0.55)
-    rush = shaped_noise(ROUND_CLIP_SECONDS, band(350.0, 2600.0)) * (0.13 if freight else 0.2)
-    hum = np.sin(2 * np.pi * (62.0 if freight else 118.0) * t) * 0.05
+    rumble = shaped_noise(ROUND_CLIP_SECONDS, band(28.0, 170.0)) * 0.55
+    rush = shaped_noise(ROUND_CLIP_SECONDS, band(350.0, 2600.0)) * 0.2
+    hum = np.sin(2 * np.pi * 118.0 * t) * 0.05
     body = (rumble + rush + hum) * near**1.6
 
     clacks = np.zeros_like(t)
-    clack = wheel_clack() * (1.3 if freight else 1.0)
+    clack = wheel_clack()
     for car_start in np.arange(TRAIN_ARRIVES + 0.25, TRAIN_LEAVES - 0.2, SECONDS_PER_CAR):
         add_at(clacks, car_start, clack)
         add_at(clacks, car_start + 0.13, clack * 0.85)
@@ -143,22 +142,21 @@ def shinkansen(from_right):
     return panned(body, side_to_side(t, SHINKANSEN_ARRIVES, SHINKANSEN_LEAVES, from_right))
 
 
-def horn(freight):
-    t = seconds(1.4 if freight else 0.9)
-    pitches = (185.0, 233.0) if freight else (349.0, 440.0)
+def horn():
+    t = seconds(0.9)
+    pitches = (349.0, 440.0)
     tone = sum(np.sin(2 * np.pi * pitch * t) + 0.4 * np.sin(4 * np.pi * pitch * t) for pitch in pitches)
     envelope = smoothstep(0.0, 0.06, t) * (1.0 - smoothstep(len(t) / SAMPLE_RATE - 0.25, len(t) / SAMPLE_RATE, t))
     return tone * envelope * 0.035
 
 
 def crossing(from_right, kind):
-    """kind: "commuter", "freight" or "shinkansen"."""
+    """kind: "commuter" or "shinkansen"."""
     if kind == "shinkansen":
         return panned(bell(), 0.15) + shinkansen(from_right)
-    freight = kind == "freight"
-    mix = panned(bell(), 0.15) + commuter_train(from_right, freight)
+    mix = panned(bell(), 0.15) + commuter_train(from_right)
     horn_track = np.zeros(len(mix))
-    add_at(horn_track, TRAIN_ARRIVES - 1.6, horn(freight))
+    add_at(horn_track, TRAIN_ARRIVES - 1.6, horn())
     return mix + panned(horn_track, 0.7 if from_right else -0.7)
 
 
@@ -385,8 +383,6 @@ def waltz(bars, with_music_box=False, with_left_hand=True):
 def train_of(theme, index):
     if index % 2 == 1:
         return "shinkansen"
-    if theme == "night" and index == 4:
-        return "freight"
     return "commuter"
 
 
