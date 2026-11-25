@@ -36,6 +36,8 @@ FAR_CAR_STARTS = 1.4
 CAR_STOPS_AFTER = 3.0
 CAR_GOES_AFTER = 14.9
 MUSIC_LEVEL = 0.032
+BELL_LEVEL = 0.07
+TRAIN_LEVEL = 0.5
 AIR_SECONDS = 12.0
 AIR_FADE_SECONDS = 1.5
 
@@ -94,7 +96,7 @@ def bell():
     strike = bell_strike()
     for index in range(int(BELL_ENDS * BELL_STRIKES_PER_SECOND) + 1):
         add_at(track, index / BELL_STRIKES_PER_SECOND, strike)
-    return track * 0.16
+    return track * BELL_LEVEL
 
 
 def wheel_clack():
@@ -142,8 +144,8 @@ def shinkansen(from_right):
 def crossing(from_right, kind):
     """kind: "commuter" or "shinkansen"."""
     if kind == "shinkansen":
-        return panned(bell(), 0.15) + shinkansen(from_right)
-    return panned(bell(), 0.15) + commuter_train(from_right)
+        return panned(bell(), 0.15) + shinkansen(from_right) * TRAIN_LEVEL
+    return panned(bell(), 0.15) + commuter_train(from_right) * TRAIN_LEVEL
 
 
 def meow():
