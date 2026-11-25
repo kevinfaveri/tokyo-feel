@@ -172,14 +172,14 @@
       "src/common.wgsl": "13b65bcc7b72c46f5601dc0fbfcc1d1324d94cbf7dcd276819bbbfd62f7a8d29",
       "src/ground.wgsl": "e8eef99d502770a81da0c104d0a81ccc682aebdcda6260d0d3183832d6720efb",
       "src/head.txt": "91040614cb8bad18b60b614eeea11ce7f26df60666ab0f0731f757d0db23a12b",
-      "src/live.wgsl": "97232d990c6fa28554e6f5745fa01b57bb710cfec0dec0260c2b0a417f41671b",
+      "src/live.wgsl": "4d3fd71728d058305ebd71370f2ee73ab27703c5f71e629f2228b689eb5be500",
       "src/show.wgsl": "7856f92672b95b9b0c011ef4ef14b3fb4f034ee5ab42515e7ec82d7df5113452",
       "src/sounds.py": "b5a358c74aea20b04e528e28fb3e9fc4bb6b0295c65cf06b7e793f614efaf885",
-      "tokyo_wgsl.luau": "74aeacbe3093b0c12e2664be3d3d65414b928b14bfdaf7efcb9eb7d9fd954321",
+      "tokyo_wgsl.luau": "4761c6ad7d0cdfcf17a34b60b05ddcddf0758109d651755e3155dd873898b8b8",
       "zeron.luau": "178b79b55566c9643b26181539b8e1348482179a169da98ba384cd66f3f8a483"
     },
     "key": "nEJJsJc5eIrmIbW6qup5AO2JmwpmRpl-oO9CVbuohWc",
-    "sig": "eaqrLl4ek6mjhL4GtWrsMFW2gBvqARy0WS5SlFe3uL5ZnmphGBtbUyY5qglo6eYg4pzH8FmpBANZu1oSLbBgAg"
+    "sig": "tKCEQS5gj6G7evrhjBTJ3Nanp587bWGPYuAEuzIuNYD72pUfR45IQZ9xT3EDQflfPOagjLKZ1WfSnWY1blC3Dw"
   },
   "ui": {
     "change": [

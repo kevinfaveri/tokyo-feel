@@ -399,32 +399,55 @@ fn tk_sky(rd: vec3<f32>, cell: vec2<f32>, res: vec2<f32>, e: f32) -> vec3<f32> {
 	let up = rd.y;
 	let az = rd.x / max(-rd.z, 0.2);
 	let night = g_theme == 2;
-	// The Skytree: a lattice shaft narrowing upward, two decks near its top,
-	// a mast, a beacon blinking at the tip. By day it is pale, the sun
-	// glinting off its decks; at night it is lit, blue then violet, with a
-	// light running round each deck.
-	let ty = up / 0.25;
-	let from_tree = az + 0.116;
-	var tree_half = 0.0125 - 0.012 * ty;
-	let low_deck = ty > 0.54 && ty < 0.6;
-	let high_deck = ty > 0.69 && ty < 0.725;
-	if (low_deck) {
-		tree_half = 0.008 + 0.06 * (ty - 0.54);
-	} else if (high_deck) {
-		tree_half = 0.0085;
-	} else if (ty > 0.725) {
-		tree_half = 0.0022;
+	// The Skytree, in its own proportions: a lattice body, wide at the foot
+	// and drawn in to a round shaft; the lower deck, three tiers that widen
+	// upward; a slim neck; the small upper deck; the antenna in two steps,
+	// a beacon blinking at the tip. By day it is pale, the sun glinting off
+	// its decks; at night it is lit, blue then violet, with a light running
+	// round each deck.
+	let ty = up / 0.262;
+	let from_tree = az + 0.064;
+	let lower_deck = ty >= 0.52 && ty < 0.578;
+	let upper_deck = ty >= 0.695 && ty < 0.728;
+	let antenna = ty >= 0.775;
+	var tree_half = 0.0052;
+	if (ty < 0.52) {
+		let to_shaft = 1.0 - ty / 0.52;
+		tree_half = 0.0066 + 0.0074 * to_shaft * sqrt(to_shaft);
+	} else if (ty < 0.538) {
+		tree_half = 0.0086;
+	} else if (ty < 0.558) {
+		tree_half = 0.0102;
+	} else if (ty < 0.578) {
+		tree_half = 0.0116;
+	} else if (ty < 0.59) {
+		tree_half = 0.0078;
+	} else if (ty < 0.695) {
+		tree_half = 0.0052;
+	} else if (ty < 0.712) {
+		tree_half = 0.0068;
+	} else if (ty < 0.728) {
+		tree_half = 0.008;
+	} else if (ty < 0.745) {
+		tree_half = 0.0056;
+	} else if (ty < 0.775) {
+		tree_half = 0.004;
+	} else if (ty < 0.875) {
+		tree_half = 0.0027;
+	} else {
+		tree_half = 0.0015;
 	}
+	tree_half = tree_half * 1.35;
 	if (ty > 0.0 && ty < 1.0 && abs(from_tree) < tree_half) {
-		if (ty > 0.97) {
+		if (ty > 0.975) {
 			if (sin(e * 2.4) > 0.0) {
 				return tk_pal(P_RED + 2);
 			}
 			return tk_pal(P_RED + 1);
 		}
-		var glow = tk_pal(P_GREY + 3);
-		var strut = tk_pal(P_GREY + 4);
-		var deck = tk_pal(P_GREY + 3);
+		var glow = tk_pal(P_GREY + 5);
+		var strut = tk_pal(P_GREY + 3);
+		var deck = tk_pal(P_GREY + 1);
 		var glint = tk_pal(9);
 		var round_speed = 0.05;
 		if (night) {
@@ -433,21 +456,38 @@ fn tk_sky(rd: vec3<f32>, cell: vec2<f32>, res: vec2<f32>, e: f32) -> vec3<f32> {
 				glow = tk_pal(6);
 			}
 			strut = tk_pal(P_GREY + 5);
-			deck = tk_pal(P_GREY + 5);
-			glint = tk_pal(P_WARM + 4);
+			deck = tk_pal(P_WARM + 3);
+			glint = tk_pal(9);
 			round_speed = 0.22;
 		}
-		if (low_deck || high_deck) {
+		let across = from_tree / tree_half;
+		let row = floor(ty * 122.0);
+		if (lower_deck || upper_deck) {
+			if (fract(row * 0.5) < 0.25) {
+				return glow;
+			}
 			let round_it = fract(e * round_speed + ty * 3.0) * 2.0 - 1.0;
-			if (abs(from_tree / tree_half - round_it) < 0.3) {
+			if (abs(across - round_it) < 0.3) {
 				return glint;
 			}
 			return deck;
 		}
-		if (ty > 0.725) {
+		if (antenna) {
+			if (abs(ty - 0.875) < 0.006) {
+				return strut;
+			}
 			return glow;
 		}
-		if (fract(ty * 11.0 + from_tree * 70.0) < 0.5 == fract(ty * 11.0 - from_tree * 70.0) < 0.5) {
+		if (ty >= 0.578 && abs(across) > 0.55) {
+			return glow;
+		}
+		if (ty >= 0.578) {
+			return strut;
+		}
+		if (abs(across) > 0.72) {
+			return glow;
+		}
+		if (fract(ty * 13.0 + from_tree * 60.0) < 0.5 == fract(ty * 13.0 - from_tree * 60.0) < 0.5) {
 			return strut;
 		}
 		return glow;
