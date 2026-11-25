@@ -34,7 +34,7 @@ A round of the crossing takes 44 seconds, and seven rounds make a theme's progra
 
 ## Sound
 
-Two buttons sit at the bottom right of a chat and of a new chat: **Theme** (it steps through sunrise, sunset, night and day cycle) and **Turn sound on** / **Turn sound off**. With the sound on you hear the theme's air (birds at sunrise and sunset, crickets at night), each round's bell in time with its lamps, its train passing from the side it comes from, and that round's own sounds. Very low under it plays the theme's waltz for a soft piano and a music box: a bright one in C at sunrise, the one in F at sunset, a lullaby in A minor at night, with a round or two left silent.
+Four buttons sit at the bottom right of a chat and of a new chat: **Theme** (it steps through sunrise, sunset, night and day cycle), **Turn fade off** / **Turn fade on** (off shows the crossing behind a chat at full strength), **Restart** (the programme and its sounds start over) and **Turn sound on** / **Turn sound off**. With the sound on you hear the theme's air (birds at sunrise and sunset, crickets at night), each round's bell in time with its lamps, its train passing from the side it comes from, and that round's own sounds. Very low under it plays the theme's waltz for a soft piano and a music box: a bright one in C at sunrise, the one in F at sunset, a lullaby in A minor at night, with a round or two left silent.
 
 Zeron lends plugins no audio, so the plugin plays the clips in `sounds/` with `player.js`, a short script for macOS's `osascript`. It joins each clip at the second the computer's clock says, so a sound you turn on part way through a round starts in step with the picture. The sound works on macOS only. The clips, the waltzes included, are synthesized by `python3 src/sounds.py`; no recording is used.
 
@@ -54,7 +54,7 @@ In Zeron: **Settings → Plugins → Install…**, then the repository `kevinfav
 - **Show behind chats** and **Strength**: the faded crossing behind a chat's messages.
 - **Volume**: Quiet, Normal or Loud.
 
-It asks for `ui.change` (to draw a new chat's background), `ui.add` (to place the crossing behind the transcript and the two buttons) and `commands` for three programs: `osascript` (runs `player.js`, which plays a clip), `pkill` (stops the plugin's own players, matched by the path of `player.js`) and `printenv` (reads `HOME` to find the clips). Zeron's consent sheet says of programs it does not know that they "can do anything you can"; `init.luau` shows the only calls made.
+It asks for `ui.change` (to draw a new chat's background), `ui.add` (to place the crossing behind the transcript and the four buttons) and `commands` for three programs: `osascript` (runs `player.js`, which plays a clip), `pkill` (stops the plugin's own players, matched by the path of `player.js`) and `printenv` (reads `HOME` to find the clips). Zeron's consent sheet says of programs it does not know that they "can do anything you can"; `init.luau` shows the only calls made.
 
 ## Files
 

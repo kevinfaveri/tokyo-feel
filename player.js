@@ -24,15 +24,36 @@ function run(argv) {
 	}
 	player.currentTime = secondsIntoClip;
 	player.play;
-	playUntilTheEndOrUntilZeronQuits(player);
+	playWhileThePluginRuns(player, file);
 }
 
-// (Zeron does not stop the programs it started when it quits. A program
-// whose parent has gone is handed to another, so its parent's id changes.)
-function playUntilTheEndOrUntilZeronQuits(player) {
+// (Zeron does not stop the programs a plugin started, not when it quits and
+// not when the plugin is turned off or removed. A program whose parent has
+// gone is handed to another, so its parent's id changes. Whether a plugin
+// is on is in .state.json, beside the plugins' folders.)
+function playWhileThePluginRuns(player, file) {
 	const zeron = $.getppid();
-	while (player.playing && $.getppid() === zeron) {
+	const pluginFolder = file.split("/").slice(0, -2);
+	const stateFile = pluginFolder.slice(0, -1).concat(".state.json").join("/");
+	const pluginId = pluginFolder[pluginFolder.length - 1];
+	while (player.playing && $.getppid() === zeron && pluginIsOn(stateFile, pluginId, file)) {
 		delay(0.25);
 	}
 	player.stop;
+}
+
+function pluginIsOn(stateFile, pluginId, file) {
+	if (!$.NSFileManager.defaultManager.fileExistsAtPath(file)) {
+		return false;
+	}
+	const text = $.NSString.stringWithContentsOfFileEncodingError(stateFile, $.NSUTF8StringEncoding, null);
+	if (text.isNil()) {
+		return true;
+	}
+	try {
+		const decision = JSON.parse(text.js).decisions[pluginId];
+		return decision !== undefined && decision.off !== true;
+	} catch (halfWrittenFile) {
+		return true;
+	}
 }

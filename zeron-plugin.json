@@ -136,15 +136,15 @@
       "style": "segmented"
     }
   ],
-  "settings_description": "A pixel-art railway crossing in sakura season. Use it as the new chat wallpaper, and keep a faded one behind your chats. The theme and the sound are on two buttons at the bottom right.",
+  "settings_description": "A pixel-art railway crossing in sakura season. Use it as the new chat wallpaper, and keep a faded one behind your chats. The theme, the fade, a restart and the sound are on four buttons at the bottom right.",
   "signature": {
     "files": {
       "LICENSE": "66865bda0187c03cdf93e29da2d90ea756a76c0013da8380404c16a86d67316d",
-      "README.md": "49a33070b1be0422cf02376e398c05e7e02b5f5cd155efbb293fd84e9db1acf2",
+      "README.md": "56b507d44ea1cae7bfbdf0a5afbad7c09adc76c3bb8a4ed1918283dc466534bc",
       "icon.svg": "1c03ef1bb598e64697fa38545f42ed0480ea77bdf2e9954d1f5fae6ca723b696",
-      "init.luau": "2af426bf3c95327535f2a70beed72d68537bfe0fdbd537eb2cd411d7cfc4b4de",
+      "init.luau": "94489008ba9fb4752dff43edd53d1889ba2e13146214da30ee7b1d2cc67089ab",
       "locales/en.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
-      "player.js": "64dc44654246373457eb1d4ace531f16e340f92571b9e28a1ed4648c55295d6d",
+      "player.js": "ceb3efa770400cd351d2a2e5cb7c3d16c4074645855fc9484d1e4691ba1d150d",
       "sounds/air-night.m4a": "28d4c16e35fb32be550adea735f3ef8fe9d27d1ec797d125f3dac1c68928a4de",
       "sounds/air-sunrise.m4a": "3747b93987c7cc668ba9b60438261f4e93cbcfb618e2d1b8a751039e5ed8f7e3",
       "sounds/air-sunset.m4a": "068e1c7cb53d75f1679fd06feb13f9d5e2a0eb1181f66e24d0e8731dc795fe41",
@@ -180,7 +180,7 @@
       "zeron.luau": "178b79b55566c9643b26181539b8e1348482179a169da98ba384cd66f3f8a483"
     },
     "key": "nEJJsJc5eIrmIbW6qup5AO2JmwpmRpl-oO9CVbuohWc",
-    "sig": "XV8k-RWyJ3zSM9mZ7MYP9uLYDu9VMGeSxuzCZWHpSIz6_5_syFunfSAGEWOtvOluB82yoa1fNeJom2ManqgYBQ"
+    "sig": "GdpY-5BuP_Hw3apoMD4vR32foIQCbDMUVyHZVxBHBihV7X8JHdEX4Q6Kz4souPQgoHEMySw3Aqfz9ujpJ5pFBw"
   },
   "ui": {
     "change": [

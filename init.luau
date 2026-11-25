@@ -11,8 +11,9 @@
 -- Three places:
 --   #new-chat-background  the crossing, as a wallpaper
 --   #transcript           the same crossing, faded, behind a chat
---   #chat-session, #chat-home   two buttons at the bottom right: the theme
---                         (sunrise, sunset or night) and the sound
+--   #chat-session, #chat-home   four buttons at the bottom right: the theme
+--                         (sunrise, sunset or night), the fade, a restart
+--                         of the programme, and the sound
 --
 -- A theme has its own sky and light, its own people and animals, its own
 -- sounds and waltz: a programme of seven rounds, five minutes long, played
@@ -35,6 +36,7 @@ local chats_setting = zeron.setting("chats")
 local strength_setting = zeron.setting("strength")
 local volume_setting = zeron.setting("volume")
 local sound_on = zeron.store("sound", false)
+local fade_on = zeron.store("fade", true)
 local theme_choice = zeron.store("theme", "sunset")
 local theme_of_the_hour = zeron.store("theme-of-the-hour", "sunset")
 
@@ -89,6 +91,7 @@ local CHAT_ALPHA = {
 	dark = { subtle = 0.4, medium = 0.55, vivid = 0.75 },
 	light = { subtle = 0.2, medium = 0.3, vivid = 0.45 },
 }
+local WALL_MUTED = 0.12
 
 -- The round in src/live.wgsl: 44 seconds, the first one 2.5 seconds after
 -- the programme starts.
@@ -297,6 +300,16 @@ local function choose_next_theme()
 	theme_choice:set(CHOICES[current % #CHOICES + 1])
 end
 
+local function restart_the_programme()
+	start_programme_over()
+	stop_clips()
+	programme_seconds_shown:set(0)
+end
+
+local function toggle_fade()
+	fade_on:set(fade_on:peek() == false)
+end
+
 local function toggle_sound()
 	local turn_on = not sound_is_wanted()
 	sound_wanted = turn_on
@@ -400,8 +413,11 @@ zeron.place {
 	at = "#new-chat-background",
 	fill = true,
 	replace = function(): Node
-		return ui.presence(look_key, function(key: string): Node
-			return Scene("wall", look_from(key), 1, 0.12)
+		return ui.presence(function(): string
+			return `{if fade_on:get() == false then "clear" else "faded"}|{look_key()}`
+		end, function(key: string): Node
+			local fade, look = string.match(key, "^(.-)|(.*)$")
+			return Scene("wall", look_from(look or ""), 1, if fade == "clear" then 0 else WALL_MUTED)
 		end, { w_full = true, h_full = true })
 	end,
 }
@@ -427,14 +443,16 @@ zeron.place {
 					return "off"
 				end
 				local scheme = if appearance and appearance() == "light" then "light" else "dark"
-				return `{scheme}|{strength_setting:get() or "subtle"}|{look_key()}`
+				local strength = if fade_on:get() == false then "clear" else strength_setting:get() or "subtle"
+				return `{scheme}|{strength}|{look_key()}`
 			end, function(key: string): Node
 				if key == "off" then
 					return ui.div {}
 				end
 				local scheme, strength, look = string.match(key, "^(.-)|(.-)|(.*)$")
 				local levels = CHAT_ALPHA[scheme or "dark"] or CHAT_ALPHA.dark
-				return Scene("chat", look_from(look or ""), levels[strength or "subtle"] or levels.subtle, 0)
+				local alpha = if strength == "clear" then 1 else levels[strength or "subtle"] or levels.subtle
+				return Scene("chat", look_from(look or ""), alpha, 0)
 			end, { w_full = true, h_full = true }),
 		}
 	end,
@@ -481,6 +499,22 @@ local function Corner(): Node
 					return `Theme: {THEME_LABEL[theme()]}`
 				end,
 				on_click = choose_next_theme,
+			},
+			CornerButton {
+				id = "tokyo-feel-fade",
+				label = "Crossing fade",
+				words = function(): string
+					return if fade_on:get() == false then "Turn fade on" else "Turn fade off"
+				end,
+				on_click = toggle_fade,
+			},
+			CornerButton {
+				id = "tokyo-feel-restart",
+				label = "Restart the crossing",
+				words = function(): string
+					return "Restart"
+				end,
+				on_click = restart_the_programme,
 			},
 			CornerButton {
 				id = "tokyo-feel-sound",
