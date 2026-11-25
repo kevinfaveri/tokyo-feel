@@ -140,9 +140,9 @@
   "signature": {
     "files": {
       "LICENSE": "66865bda0187c03cdf93e29da2d90ea756a76c0013da8380404c16a86d67316d",
-      "README.md": "b046567835875d9ed5e380c08848de6df80e3c4ab767649a2f2f30cf41765fb7",
+      "README.md": "6e700ea990054cb0610e2467f5eaf1f0f8019a58c03a3227b5513e242001494a",
       "icon.svg": "1c03ef1bb598e64697fa38545f42ed0480ea77bdf2e9954d1f5fae6ca723b696",
-      "init.luau": "4a34578740038586fb12b75e7264ed6d4544d98e4da51680dfdbead672b93a6a",
+      "init.luau": "5ff3f80dc02fcca0f19f196fa35c321eff85de8323c72168f769dcc129b7da13",
       "locales/en.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
       "sounds/air-night.m4a": "16f475504f8f48470d97f0b6c960ebb9fe6793f8b9e27b03d7a0e040a5584ddb",
       "sounds/air-sunrise.m4a": "bc02a27446c63308b386fc2628dfcf2794a9b330ae1b21f259eb1c90b9dc96d8",
@@ -179,7 +179,7 @@
       "zeron.luau": "178b79b55566c9643b26181539b8e1348482179a169da98ba384cd66f3f8a483"
     },
     "key": "nEJJsJc5eIrmIbW6qup5AO2JmwpmRpl-oO9CVbuohWc",
-    "sig": "bjv4mCaHWBkREEuPCu7PAYRmUufmWvmwkJSeO0F94gKgAukmvZEpvfnWL7yH_h5FwOgQez91aoF_0FJwM-QTAw"
+    "sig": "gchDY9bOaUGurd0EYFacz4BgxosTMqKdw8RV8vJVQlb1w5qRjdYGK3ZQ6nNoEVuMCpcZ79WIGjM8A2ifmh0LBQ"
   },
   "ui": {
     "change": [

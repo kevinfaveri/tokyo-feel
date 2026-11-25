@@ -24,7 +24,7 @@ Zeron's compositor steps the clock, so no script runs per frame. One round of th
 
 A round of the crossing takes 44 seconds, and seven rounds make a theme's programme. A commuter train and a Shinkansen take turns: the commuter trains (green, blue, orange) rattle by with a horn and the beat of their wheels; the Shinkansen is white with a blue line, more than twice as fast, and louder. Choosing a theme starts its programme from the beginning.
 
-**Day cycle** follows the computer's clock: sunrise from 05:00, sunset from 12:00, night from 19:00. When the clock passes one of those hours, the next theme's programme starts.
+**Day cycle** follows the computer's clock: sunrise from 05:00, sunset from 12:00, night from 19:00. When the clock passes one of those hours, the programme you are watching plays to its end, and then the next theme's programme starts.
 
 **Sunrise.** A pale blue sky, the sun climbing over the city through the five minutes, mist down the street. People on their way to work and school every round; the school run in most, the dog's walk in the others. Sparrows peck about on the road (rounds 1, 4 and 7) and fly off; a bush warbler calls; a bicycle bell; the cat in round 5; a school's chime far off in round 6. Many birds in the air, and two flocks crossing the sky.
 

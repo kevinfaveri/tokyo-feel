@@ -44,6 +44,7 @@ local SUNRISE_FROM_HOUR = 5
 local SUNSET_FROM_HOUR = 12
 local NIGHT_FROM_HOUR = 19
 local DAY_CYCLE_CHECK_MS = 60000
+local TIMER_SLACK_MS = 50
 local THEME_NUMBER = { sunrise = 0, sunset = 1, night = 2 }
 local THEME_LABEL = { sunrise = "Sunrise", sunset = "Sunset", night = "Night" }
 local THEME_BACKDROP = { sunrise = "#c3d3e6", sunset = "#c47fa0", night = "#141733" }
@@ -117,6 +118,7 @@ local checks_without_a_scene = 0
 local cancel_next_round: (() -> ())? = nil
 local cancel_next_air: (() -> ())? = nil
 local cancel_next_check: (() -> ())? = nil
+local theme_changes_at_ms: number? = nil
 local start_sounds: () -> ()
 
 local function motion_is_reduced(): boolean
@@ -238,7 +240,8 @@ local function start_programme_over()
 	programme = nil
 end
 
-local function follow_the_computer_clock()
+local function show_the_theme_of_the_hour()
+	theme_changes_at_ms = nil
 	local due = theme_for_the_computer_clock()
 	if theme_of_the_hour:peek() == due then
 		return
@@ -247,6 +250,32 @@ local function follow_the_computer_clock()
 		start_programme_over()
 	end
 	theme_of_the_hour:set(due)
+end
+
+local function ms_until_programme_ends(running: Programme): number
+	local programme_length = ROUND_SECONDS * ROUNDS_IN_PROGRAMME
+	return (programme_length - programme_seconds(running) % programme_length) / running.speed * 1000
+end
+
+-- (A scene someone is watching plays its programme to the end before the
+-- next theme comes. The time is kept, not only a timer, so a later check
+-- still makes the change if the timer is lost with its scene.)
+local function follow_the_computer_clock()
+	if theme_of_the_hour:peek() == theme_for_the_computer_clock() then
+		theme_changes_at_ms = nil
+		return
+	end
+	local running = programme
+	local someone_watches = theme_choice:peek() == DAY_CYCLE and running ~= nil and #shown_scenes > 0
+	if not someone_watches then
+		show_the_theme_of_the_hour()
+	elseif theme_changes_at_ms == nil then
+		local wait = ms_until_programme_ends(running :: Programme)
+		theme_changes_at_ms = ui.now() + wait
+		ui.after(wait + TIMER_SLACK_MS, follow_the_computer_clock)
+	elseif ui.now() >= theme_changes_at_ms then
+		show_the_theme_of_the_hour()
+	end
 end
 
 local function scene_shows(scene: ShownScene)
@@ -274,7 +303,7 @@ end
 
 local function choose_next_theme()
 	local current = table.find(CHOICES, theme_choice:peek()) or 2
-	follow_the_computer_clock()
+	show_the_theme_of_the_hour()
 	start_programme_over()
 	theme_choice:set(CHOICES[current % #CHOICES + 1])
 end
