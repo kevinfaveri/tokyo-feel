@@ -4,6 +4,7 @@
 // is still to come waits for it. So the sound keeps to the picture however
 // long this program took to start.
 ObjC.import("AVFoundation");
+ObjC.import("unistd");
 
 function run(argv) {
 	const file = argv[0];
@@ -23,5 +24,15 @@ function run(argv) {
 	}
 	player.currentTime = secondsIntoClip;
 	player.play;
-	delay(player.duration - secondsIntoClip + 0.1);
+	playUntilTheEndOrUntilZeronQuits(player);
+}
+
+// (Zeron does not stop the programs it started when it quits. A program
+// whose parent has gone is handed to another, so its parent's id changes.)
+function playUntilTheEndOrUntilZeronQuits(player) {
+	const zeron = $.getppid();
+	while (player.playing && $.getppid() === zeron) {
+		delay(0.25);
+	}
+	player.stop;
 }

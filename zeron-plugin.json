@@ -144,7 +144,7 @@
       "icon.svg": "1c03ef1bb598e64697fa38545f42ed0480ea77bdf2e9954d1f5fae6ca723b696",
       "init.luau": "2af426bf3c95327535f2a70beed72d68537bfe0fdbd537eb2cd411d7cfc4b4de",
       "locales/en.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
-      "player.js": "61a35632158e4753d29a45fec81f143a70db3f99a43fdc288083228fabd7c690",
+      "player.js": "64dc44654246373457eb1d4ace531f16e340f92571b9e28a1ed4648c55295d6d",
       "sounds/air-night.m4a": "1280ee43d8f301d4036efe656c930d79c894be795ab4fe8985a78e06068cf4f5",
       "sounds/air-sunrise.m4a": "d1d8589f05b972238e09c186dcad57dc49d7da81488ce60aa8301903dd75bab2",
       "sounds/air-sunset.m4a": "5651d7857e8a0e93be046e02b31ffc1058129b9e0e358beb6f13173845e0f5d4",
@@ -180,7 +180,7 @@
       "zeron.luau": "178b79b55566c9643b26181539b8e1348482179a169da98ba384cd66f3f8a483"
     },
     "key": "nEJJsJc5eIrmIbW6qup5AO2JmwpmRpl-oO9CVbuohWc",
-    "sig": "UVXjTJu8DWry11xPfiD-kZWdgkt6i4SrrhA03nE-IEzVGfXBxWfnt3br5Rrmyh0G3Lt8EoStERyg-27gxHGkAw"
+    "sig": "sq8KRHLKKcUOyXk5mqFpcL_3hqBgS--XL3LDyvKcDVzn7-fNOk9VgOx2kYbR18SOsZxTzz8Iz0ImXDQCZ3bYCA"
   },
   "ui": {
     "change": [
