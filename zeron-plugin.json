@@ -140,9 +140,9 @@
   "signature": {
     "files": {
       "LICENSE": "66865bda0187c03cdf93e29da2d90ea756a76c0013da8380404c16a86d67316d",
-      "README.md": "2977bb88da2873065f092a83c7ee22445685965b4458a514029ee22e99a1f283",
+      "README.md": "3b3be777dd507a011d2cec8d9aeb0c7ace83dc42fb765c3e398f3d04ff8b554b",
       "icon.svg": "1c03ef1bb598e64697fa38545f42ed0480ea77bdf2e9954d1f5fae6ca723b696",
-      "init.luau": "5ff3f80dc02fcca0f19f196fa35c321eff85de8323c72168f769dcc129b7da13",
+      "init.luau": "9991f69f2c034812aaea3bc0c26475cd325c26f419be8830a8bed4ee324ef610",
       "locales/en.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
       "sounds/air-night.m4a": "e0006a2d39385b5d65916eff5e863c0a5b51f369f2a6c712f220da111b505847",
       "sounds/air-sunrise.m4a": "a109e0ee1fcff1c38be87c90ff20804afacd5c3f3f9f5281b520062c630af0e9",
@@ -171,15 +171,15 @@
       "src/build.py": "e024747a5838291bb82ccf596481983507cc287301476c602d7b07a344d38760",
       "src/common.wgsl": "13b65bcc7b72c46f5601dc0fbfcc1d1324d94cbf7dcd276819bbbfd62f7a8d29",
       "src/ground.wgsl": "e8eef99d502770a81da0c104d0a81ccc682aebdcda6260d0d3183832d6720efb",
-      "src/head.txt": "91040614cb8bad18b60b614eeea11ce7f26df60666ab0f0731f757d0db23a12b",
-      "src/live.wgsl": "2d8777ee195b922468c63d0521fcf55b8ec56bc24007ca2f7b686807b859d053",
+      "src/head.txt": "4a86c499fc088d4cc394e092449732141269f845f0fb757b131c653630eaeabe",
+      "src/live.wgsl": "74c0d1719e3248488a2d0cfedad9b3e627bf3823c17f8672559e1e8ccc914ecd",
       "src/show.wgsl": "7856f92672b95b9b0c011ef4ef14b3fb4f034ee5ab42515e7ec82d7df5113452",
       "src/sounds.py": "5d039318921069d329cb213249081fb3710a3b2e8687452d113cc587631dd646",
-      "tokyo_wgsl.luau": "457d5d720f60297950a8b89ea280b9553b858b397c027e096c915857b78883dc",
+      "tokyo_wgsl.luau": "356f70b1e4a9c984a22b0a8f0028e5c5426a9d2746d19d449f40b95e934d366b",
       "zeron.luau": "178b79b55566c9643b26181539b8e1348482179a169da98ba384cd66f3f8a483"
     },
     "key": "nEJJsJc5eIrmIbW6qup5AO2JmwpmRpl-oO9CVbuohWc",
-    "sig": "LNkMsyVqqfSOpZRJ0eDva18oTTJVLxU9ciHxV0iNo7_UwZDGGXUt3bgKwWdmuoXeEPmW09HSFbKxHeNwcNUTDw"
+    "sig": "oWyHAvVn8EUJxlYS7tPIetEZUxOmuRUunlWOFJL7g1iunWcSUF8_sKPhfr6KqyMXPP4FG3tia8mkqHv57zlqBg"
   },
   "ui": {
     "change": [

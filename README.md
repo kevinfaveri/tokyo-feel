@@ -18,7 +18,7 @@ Everything is on the GPU, in `tokyo_wgsl.luau`, at one texel per art pixel:
 - **LIVE**: what moves, drawn each frame over it: 24 frames a second behind a new chat, 15 behind chats.
 - **SHOW**: scales the result up, nearest-neighbour.
 
-Zeron's compositor steps the clock, so no script runs per frame. One round of the crossing takes 44 seconds, and seven rounds make a theme's programme.
+The plugin keeps one clock, the computer's. About thirty times a second it tells the shaders which second of the programme to draw and starts the sounds that are due, so the picture and the sound keep together. One round of the crossing takes 44 seconds, and seven rounds make a theme's programme.
 
 ## The programmes
 

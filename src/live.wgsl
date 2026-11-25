@@ -856,7 +856,9 @@ fn run(input: PassInput) -> vec4<f32> {
 	let pd = input.params[3];
 	let cell = floor(input.pixel);
 	let res = input.size;
-	let e = input.time * max(pa.w, 0.05) + pd.y + K_CYCLE - 2.5;
+	// (The script's clock says what second of the programme to draw. The
+	// layer's own clock only asks for the next frame.)
+	let e = pd.y + K_CYCLE - 2.5;
 	let lap = floor(e / K_CYCLE);
 	let ph = e - lap * K_CYCLE;
 	// Seven rounds make a theme's programme, five minutes long. A commuter

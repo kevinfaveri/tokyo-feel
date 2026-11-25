@@ -15,7 +15,7 @@
 -- a Bayer threshold, every pixel the nearest of a small palette. Generated
 -- by src/build.py from src/*.wgsl: edit those, not this file.
 --
--- params[0] = { -, people (0 or 1), dither, speed }
+-- params[0] = { -, people (0 or 1), dither, - }
 -- params[1] = { alpha, brightness, zoom, lift }
 -- params[2] = { the sky's alpha, how muted (0 to 1), the theme (0 sunrise, 1 sunset, 2 night), - }
--- params[3] = { how many petals, the programme's seconds when the scene was built, -, - }
+-- params[3] = { how many petals, the second of the programme to draw, -, - }

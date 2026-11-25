@@ -5,8 +5,8 @@
 -- pixel. The still scenery (road, track, trees, houses) is a pass drawn once
 -- and kept; what moves (the train, the gates, people, petals) is a pass drawn
 -- each frame over it; a layer shader scales the result up nearest-neighbour.
--- The engine steps time on its own clock (`layer_clock`), so no script runs
--- per frame.
+-- The engine asks for each frame (`layer_clock`); the script's clock says
+-- which second of the programme to draw, and starts the sounds by it too.
 --
 -- Three places:
 --   #new-chat-background  the crossing, as a wallpaper
@@ -44,7 +44,6 @@ local SUNRISE_FROM_HOUR = 5
 local SUNSET_FROM_HOUR = 12
 local NIGHT_FROM_HOUR = 19
 local DAY_CYCLE_CHECK_MS = 60000
-local TIMER_SLACK_MS = 50
 local THEME_NUMBER = { sunrise = 0, sunset = 1, night = 2 }
 local THEME_LABEL = { sunrise = "Sunrise", sunset = "Sunset", night = "Night" }
 local THEME_BACKDROP = { sunrise = "#c3d3e6", sunset = "#c47fa0", night = "#141733" }
@@ -92,34 +91,40 @@ local CHAT_ALPHA = {
 }
 
 -- The round in src/live.wgsl: 44 seconds, the first one 2.5 seconds after
--- the scene's clock starts.
+-- the programme starts.
 local ROUND_SECONDS = 44
 local SECONDS_BEFORE_FIRST_ROUND = 2.5
 local ROUNDS_IN_PROGRAMME = 7
 local AIR_CLIP_SECONDS = 12
 local AIR_OVERLAP_SECONDS = 1.5
 -- (About how long afplay takes to make its first sound.)
-local PLAYER_START_MS = 120
+local PLAYER_START_SECONDS = 0.12
+-- (A round's clip can't start part way in: one that is this late waits for
+-- the next round.)
+local LATEST_CLIP_START_SECONDS = 0.6
 local LONGEST_CLIP_SECONDS = 70
 local VOLUME = { quiet = 0.3, normal = 0.6, loud = 1 }
 local OWN_CLIPS = "tokyo-feel/sounds/"
-local SCENE_CHECK_MS = 1000
-local CHECKS_BEFORE_SILENCE = 3
+local TICK_MS = 33
+local SILENCE_AFTER_NO_SCENE_MS = 3000
 local PROGRAMMES_BEFORE_CLOCK_WRAPS = 12
 
-type ShownScene = { speed: number }
-type Programme = { started_ms: number, speed: number }
+-- One clock runs everything. The programme starts at a moment of the
+-- computer's clock; every tick the picture is told how far into it we are
+-- (the shaders draw that second), and the sounds due by then are started.
+-- The picture and the sound can't drift apart: neither keeps time itself.
+type ShownScene = {}
 
+local programme_seconds_shown = ui.state("tokyo-feel.programme-seconds", 0)
 local sounds_folder: string? = nil
 local shown_scenes: { ShownScene } = {}
-local programme: Programme? = nil
+local programme_started_ms: number? = nil
 local playing = false
-local checks_without_a_scene = 0
-local cancel_next_round: (() -> ())? = nil
-local cancel_next_air: (() -> ())? = nil
-local cancel_next_check: (() -> ())? = nil
+local last_round_started: number? = nil
+local next_air_at_ms = 0
+local no_scene_since_ms: number? = nil
+local next_clock_check_ms = 0
 local theme_changes_at_ms: number? = nil
-local start_sounds: () -> ()
 
 local function motion_is_reduced(): boolean
 	local prefers = (ui :: any).prefers
@@ -130,21 +135,11 @@ local function stop_clips(named: string)
 	zeron.run("pkill", { "-f", OWN_CLIPS .. named })
 end
 
-local function cancel_timer(cancel: (() -> ())?)
-	if cancel then
-		cancel()
-	end
-end
-
 local function silence()
 	if not playing then
 		return
 	end
 	playing = false
-	cancel_timer(cancel_next_round)
-	cancel_timer(cancel_next_air)
-	cancel_timer(cancel_next_check)
-	cancel_next_round, cancel_next_air, cancel_next_check = nil, nil, nil
 	stop_clips("")
 end
 
@@ -157,87 +152,49 @@ local function sound_failed()
 	zeron.toast("Tokyo Feel's sound needs macOS (it plays with afplay)")
 end
 
-local function play(clip: string, rate: number)
+local function play(clip: string)
 	local volume = VOLUME[volume_setting:peek() or "normal"] or VOLUME.normal
 	local file = `{sounds_folder}/{clip}.m4a`
-	zeron.run("afplay", { "-v", tostring(volume), "-r", tostring(rate), file }, { timeout = LONGEST_CLIP_SECONDS }):after(nil, sound_failed)
+	zeron.run("afplay", { "-v", tostring(volume), file }, { timeout = LONGEST_CLIP_SECONDS }):after(nil, sound_failed)
 end
 
-local function programme_seconds(running: Programme): number
-	return (ui.now() - running.started_ms) / 1000 * running.speed
-end
-
--- (A scene's own clock starts at zero when it is built. Every scene adds the
--- programme's seconds to it, so all chats show the same moment.)
-local function seconds_into_programme(): number
-	local running = programme
-	if running == nil then
-		return 0
-	end
-	return programme_seconds(running) % (ROUND_SECONDS * ROUNDS_IN_PROGRAMME * PROGRAMMES_BEFORE_CLOCK_WRAPS)
-end
-
-local function ms_until_next_round(running: Programme): number
-	local into_round = (programme_seconds(running) - SECONDS_BEFORE_FIRST_ROUND) % ROUND_SECONDS
-	return (ROUND_SECONDS - into_round) / running.speed * 1000
-end
-
--- (The programme's first round starts 2.5 seconds after the scene's clock.)
-local function next_round(running: Programme): number
-	local rounds_begun = math.ceil((programme_seconds(running) - SECONDS_BEFORE_FIRST_ROUND) / ROUND_SECONDS)
-	return math.max(rounds_begun, 0) % ROUNDS_IN_PROGRAMME
-end
-
-local function schedule_round()
-	local running = programme
-	if not playing or running == nil or motion_is_reduced() then
-		return
-	end
-	local wait = math.max(ms_until_next_round(running) - PLAYER_START_MS, 0)
-	local round = next_round(running)
-	cancel_next_round = ui.after(wait, function()
-		play(`round-{theme_now()}-{round}`, running.speed)
-		cancel_next_round = ui.after(1000, schedule_round)
-	end)
-end
-
-local function play_air()
-	if not playing then
-		return
-	end
-	play(`air-{theme_now()}`, 1)
-	cancel_next_air = ui.after((AIR_CLIP_SECONDS - AIR_OVERLAP_SECONDS) * 1000, play_air)
-end
-
--- (Going from one chat to another leaves no scene for a moment. The sound
--- plays on through that, and stops only when no scene comes back.)
-local function stop_when_no_scene_is_left()
-	if not playing then
-		return
-	end
-	checks_without_a_scene = if #shown_scenes == 0 then checks_without_a_scene + 1 else 0
-	if checks_without_a_scene >= CHECKS_BEFORE_SILENCE then
-		silence()
-		return
-	end
-	cancel_next_check = ui.after(SCENE_CHECK_MS, stop_when_no_scene_is_left)
-end
-
-function start_sounds()
-	if playing or sounds_folder == nil or programme == nil or #shown_scenes == 0 then
+local function start_sounds()
+	if playing or sounds_folder == nil or #shown_scenes == 0 then
 		return
 	end
 	playing = true
-	checks_without_a_scene = 0
-	play_air()
-	schedule_round()
-	stop_when_no_scene_is_left()
+	last_round_started = nil
+	next_air_at_ms = ui.now()
+end
+
+local function rounds_begun(programme_seconds: number): number
+	return math.floor((programme_seconds + PLAYER_START_SECONDS - SECONDS_BEFORE_FIRST_ROUND) / ROUND_SECONDS)
+end
+
+local function seconds_into_round(programme_seconds: number): number
+	return (programme_seconds + PLAYER_START_SECONDS - SECONDS_BEFORE_FIRST_ROUND) % ROUND_SECONDS
+end
+
+local function play_what_is_due(programme_seconds: number)
+	local now = ui.now()
+	if now >= next_air_at_ms then
+		play(`air-{theme_now()}`)
+		next_air_at_ms = now + (AIR_CLIP_SECONDS - AIR_OVERLAP_SECONDS) * 1000
+	end
+	local begun = rounds_begun(programme_seconds)
+	if begun < 0 or begun == last_round_started then
+		return
+	end
+	last_round_started = begun
+	if seconds_into_round(programme_seconds) <= LATEST_CLIP_START_SECONDS and not motion_is_reduced() then
+		play(`round-{theme_now()}-{begun % ROUNDS_IN_PROGRAMME}`)
+	end
 end
 
 -- (A theme's scene is built anew, so its programme and its sounds start over.)
 local function start_programme_over()
 	silence()
-	programme = nil
+	programme_started_ms = nil
 end
 
 local function show_the_theme_of_the_hour()
@@ -252,41 +209,63 @@ local function show_the_theme_of_the_hour()
 	theme_of_the_hour:set(due)
 end
 
-local function ms_until_programme_ends(running: Programme): number
-	local programme_length = ROUND_SECONDS * ROUNDS_IN_PROGRAMME
-	return (programme_length - programme_seconds(running) % programme_length) / running.speed * 1000
+local function ms_until_programme_ends(started_ms: number): number
+	local programme_ms = ROUND_SECONDS * ROUNDS_IN_PROGRAMME * 1000
+	return programme_ms - (ui.now() - started_ms) % programme_ms
 end
 
 -- (A scene someone is watching plays its programme to the end before the
--- next theme comes. The time is kept, not only a timer, so a later check
--- still makes the change if the timer is lost with its scene.)
+-- next theme comes.)
 local function follow_the_computer_clock()
 	if theme_of_the_hour:peek() == theme_for_the_computer_clock() then
 		theme_changes_at_ms = nil
 		return
 	end
-	local running = programme
-	local someone_watches = theme_choice:peek() == DAY_CYCLE and running ~= nil and #shown_scenes > 0
+	local started_ms = programme_started_ms
+	local someone_watches = theme_choice:peek() == DAY_CYCLE and started_ms ~= nil and #shown_scenes > 0
 	if not someone_watches then
 		show_the_theme_of_the_hour()
 	elseif theme_changes_at_ms == nil then
-		local wait = ms_until_programme_ends(running :: Programme)
-		theme_changes_at_ms = ui.now() + wait
-		ui.after(wait + TIMER_SLACK_MS, follow_the_computer_clock)
+		theme_changes_at_ms = ui.now() + ms_until_programme_ends(started_ms :: number)
 	elseif ui.now() >= theme_changes_at_ms then
 		show_the_theme_of_the_hour()
 	end
 end
 
-local function scene_shows(scene: ShownScene)
-	follow_the_computer_clock()
-	table.insert(shown_scenes, scene)
-	if programme == nil then
-		programme = { started_ms = ui.now(), speed = scene.speed }
+local function tick_without_a_scene(now: number)
+	no_scene_since_ms = no_scene_since_ms or now
+	if playing and now - (no_scene_since_ms :: number) > SILENCE_AFTER_NO_SCENE_MS then
+		silence()
+	end
+end
+
+local function tick()
+	local now = ui.now()
+	if now >= next_clock_check_ms or (theme_changes_at_ms ~= nil and now >= theme_changes_at_ms) then
+		next_clock_check_ms = now + DAY_CYCLE_CHECK_MS
+		follow_the_computer_clock()
+	end
+	if #shown_scenes == 0 then
+		tick_without_a_scene(now)
+		return
+	end
+	no_scene_since_ms = nil
+	local started_ms = programme_started_ms or now
+	programme_started_ms = started_ms
+	local programme_seconds = (now - started_ms) / 1000
+	if not motion_is_reduced() then
+		programme_seconds_shown:set(programme_seconds % (ROUND_SECONDS * ROUNDS_IN_PROGRAMME * PROGRAMMES_BEFORE_CLOCK_WRAPS))
 	end
 	if not playing and sound_on:peek() == true then
 		start_sounds()
 	end
+	if playing then
+		play_what_is_due(programme_seconds)
+	end
+end
+
+local function scene_shows(scene: ShownScene)
+	table.insert(shown_scenes, scene)
 end
 
 local function scene_went_away(scene: ShownScene)
@@ -296,15 +275,11 @@ local function scene_went_away(scene: ShownScene)
 	end
 end
 
-local function keep_following_the_computer_clock()
-	follow_the_computer_clock()
-	ui.after(DAY_CYCLE_CHECK_MS, keep_following_the_computer_clock)
-end
-
 local function choose_next_theme()
 	local current = table.find(CHOICES, theme_choice:peek()) or 2
 	show_the_theme_of_the_hour()
 	start_programme_over()
+	programme_seconds_shown:set(0)
 	theme_choice:set(CHOICES[current % #CHOICES + 1])
 end
 
@@ -318,7 +293,10 @@ local function toggle_sound()
 	end
 end
 
-keep_following_the_computer_clock()
+-- (A timer lives as long as what made it. This one is the script's own, so
+-- it outlives every scene: a timer made while a scene is built dies with
+-- that chat.)
+ui.every(TICK_MS, tick)
 
 zeron.run("printenv", { "HOME" }):after(function(answer: any)
 	local home = string.match(answer.stdout or "", "^%s*(.-)%s*$")
@@ -328,9 +306,6 @@ zeron.run("printenv", { "HOME" }):after(function(answer: any)
 	sounds_folder = `{home}/.zeron/plugins/tokyo-feel/sounds`
 	-- (Clips left playing by a window that closed.)
 	stop_clips("")
-	if sound_on:peek() == true then
-		start_sounds()
-	end
 end)
 
 local compiled_shaders: { [string]: any } = {}
@@ -376,8 +351,8 @@ local function look_from(key: string): Look
 end
 
 -- The shaders' parameters are listed at the top of tokyo_wgsl.luau.
-local function Scene(mode: string, look: Look, speed: number, alpha: number, muted: number): Node
-	local this_scene: ShownScene = { speed = speed }
+local function Scene(mode: string, look: Look, alpha: number, muted: number): Node
+	local this_scene: ShownScene = {}
 	ui.on_cleanup(function()
 		scene_went_away(this_scene)
 	end)
@@ -392,12 +367,14 @@ local function Scene(mode: string, look: Look, speed: number, alpha: number, mut
 		bg = THEME_BACKDROP[look.theme] .. (if mode == "wall" then "" else "01"),
 		layer_shader = shader_for(look.art_pixel, mode),
 		layer_clock = true,
-		layer_params = {
-			{ 0, look.people, look.dither, speed },
-			{ alpha, 1, 1, 0 },
-			{ 1, muted, THEME_NUMBER[look.theme], 0 },
-			{ look.petals, seconds_into_programme(), 0, 0 },
-		},
+		layer_params = function()
+			return {
+				{ 0, look.people, look.dither, 0 },
+				{ alpha, 1, 1, 0 },
+				{ 1, muted, THEME_NUMBER[look.theme], 0 },
+				{ look.petals, programme_seconds_shown:get(), 0, 0 },
+			}
+		end,
 		pointer_events = "none",
 		aria_hidden = true,
 	}
@@ -408,7 +385,7 @@ zeron.place {
 	fill = true,
 	replace = function(): Node
 		return ui.presence(look_key, function(key: string): Node
-			return Scene("wall", look_from(key), 1, 1, 0.12)
+			return Scene("wall", look_from(key), 1, 0.12)
 		end, { w_full = true, h_full = true })
 	end,
 }
@@ -441,7 +418,7 @@ zeron.place {
 				end
 				local scheme, strength, look = string.match(key, "^(.-)|(.-)|(.*)$")
 				local levels = CHAT_ALPHA[scheme or "dark"] or CHAT_ALPHA.dark
-				return Scene("chat", look_from(look or ""), 1, levels[strength or "subtle"] or levels.subtle, 0)
+				return Scene("chat", look_from(look or ""), levels[strength or "subtle"] or levels.subtle, 0)
 			end, { w_full = true, h_full = true }),
 		}
 	end,

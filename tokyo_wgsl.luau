@@ -15,10 +15,10 @@
 -- a Bayer threshold, every pixel the nearest of a small palette. Generated
 -- by src/build.py from src/*.wgsl: edit those, not this file.
 --
--- params[0] = { -, people (0 or 1), dither, speed }
+-- params[0] = { -, people (0 or 1), dither, - }
 -- params[1] = { alpha, brightness, zoom, lift }
 -- params[2] = { the sky's alpha, how muted (0 to 1), the theme (0 sunrise, 1 sunset, 2 night), - }
--- params[3] = { how many petals, the programme's seconds when the scene was built, -, - }
+-- params[3] = { how many petals, the second of the programme to draw, -, - }
 local M = {}
 
 M.GROUND = [==[
@@ -2385,7 +2385,9 @@ fn run(input: PassInput) -> vec4<f32> {
 	let pd = input.params[3];
 	let cell = floor(input.pixel);
 	let res = input.size;
-	let e = input.time * max(pa.w, 0.05) + pd.y + K_CYCLE - 2.5;
+	// (The script's clock says what second of the programme to draw. The
+	// layer's own clock only asks for the next frame.)
+	let e = pd.y + K_CYCLE - 2.5;
 	let lap = floor(e / K_CYCLE);
 	let ph = e - lap * K_CYCLE;
 	// Seven rounds make a theme's programme, five minutes long. A commuter
