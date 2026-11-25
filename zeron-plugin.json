@@ -1,0 +1,135 @@
+{
+  "description": "A pixel-art railway crossing in sakura season, in 3D: a train passes, the gates fall and the lamps blink, petals drift, and people wait by the road. Behind a new chat and, faded, behind your chats.",
+  "entry": "init.luau",
+  "icon": "icon.svg",
+  "id": "tokyo-feel",
+  "name": "Tokyo Feel",
+  "permissions": [
+    "ui.change",
+    "ui.add"
+  ],
+  "settings": [
+    {
+      "kind": "wallpaper",
+      "section": "Wallpaper"
+    },
+    {
+      "default": "classic",
+      "description": "How large each art pixel is.",
+      "id": "pixel",
+      "kind": "choice",
+      "label": "Pixel size",
+      "options": [
+        {
+          "label": "Fine",
+          "value": "fine"
+        },
+        {
+          "label": "Classic",
+          "value": "classic"
+        },
+        {
+          "label": "Chunky",
+          "value": "chunky"
+        }
+      ],
+      "section": "Look",
+      "style": "segmented"
+    },
+    {
+      "default": false,
+      "description": "Blend neighbouring palette colours with a checker pattern, for a grainier look.",
+      "id": "dither",
+      "kind": "switch",
+      "label": "Dither",
+      "section": "Look"
+    },
+    {
+      "default": true,
+      "description": "The people and the dog who wait at the gates and cross.",
+      "id": "people",
+      "kind": "switch",
+      "label": "People",
+      "section": "Scene"
+    },
+    {
+      "default": "some",
+      "description": "How many petals drift on the air.",
+      "id": "petals",
+      "kind": "choice",
+      "label": "Petals",
+      "options": [
+        {
+          "label": "Few",
+          "value": "few"
+        },
+        {
+          "label": "Some",
+          "value": "some"
+        },
+        {
+          "label": "Many",
+          "value": "many"
+        }
+      ],
+      "section": "Scene",
+      "style": "segmented"
+    },
+    {
+      "default": true,
+      "description": "A slower, faded crossing behind an open chat's messages.",
+      "id": "chats",
+      "kind": "switch",
+      "label": "Show behind chats",
+      "section": "Behind chats"
+    },
+    {
+      "default": "subtle",
+      "description": "How much of the crossing shows through behind messages.",
+      "id": "strength",
+      "kind": "choice",
+      "label": "Strength",
+      "options": [
+        {
+          "label": "Subtle",
+          "value": "subtle"
+        },
+        {
+          "label": "Medium",
+          "value": "medium"
+        },
+        {
+          "label": "Vivid",
+          "value": "vivid"
+        }
+      ],
+      "section": "Behind chats",
+      "style": "segmented"
+    }
+  ],
+  "settings_description": "A pixel-art railway crossing in sakura season. Use it as the new chat wallpaper, and keep a faded one behind your chats.",
+  "signature": {
+    "files": {
+      "README.md": "6972f4a7f580555ef6bb09907005aaef8a8eb0c8c7c771f83ed3cfb26d05eb5c",
+      "icon.svg": "1c03ef1bb598e64697fa38545f42ed0480ea77bdf2e9954d1f5fae6ca723b696",
+      "init.luau": "1e75ff1abef12e6e0532d0357013be187e23c049e0ee585f57c14bc7e4b7a19d",
+      "locales/en.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "src/build.py": "4131f4aaa39bf2817e68a0d7f70b818434fdfb22680f84a277aed533dd2568aa",
+      "src/common.wgsl": "13b65bcc7b72c46f5601dc0fbfcc1d1324d94cbf7dcd276819bbbfd62f7a8d29",
+      "src/ground.wgsl": "d06b7ad0acba9f155b6dc97ee89869534ac0ccddbd49d03834c5697a905e2b0f",
+      "src/head.txt": "086086c83d354446a884021d5e91b3320f3e7253d7b326ef9cac0b034a44e598",
+      "src/live.wgsl": "4176f632e57a765e985b12fa6bd63af611b83356db23ffe23cc40671f7fd847f",
+      "src/show.wgsl": "7856f92672b95b9b0c011ef4ef14b3fb4f034ee5ab42515e7ec82d7df5113452",
+      "tokyo_wgsl.luau": "6f18fbf673a5933e28e1867ae70faeef92848280ecdfbf4ce1972928e4060221",
+      "zeron.luau": "178b79b55566c9643b26181539b8e1348482179a169da98ba384cd66f3f8a483"
+    },
+    "key": "nEJJsJc5eIrmIbW6qup5AO2JmwpmRpl-oO9CVbuohWc",
+    "sig": "pFPX0Udua1kznD9nsf-D0M8t1ESoNirNZJvOX6-4KWYdUswrKwWSLscnUx6dt5Vp9r-kT5Sa-f1d-T7Q6D3GCw"
+  },
+  "ui": {
+    "change": [
+      "#new-chat-background"
+    ]
+  },
+  "version": "0.1.0"
+}

@@ -1,0 +1,21 @@
+-- The crossing, as WGSL: three sources.
+--
+--   GROUND  a pass drawn once (and again when the box changes size): the
+--           still scenery (road, track, the crossing's posts, trees, houses,
+--           poles and wires), kept per art pixel as light, material, depth
+--           and warm light.
+--   LIVE    a pass drawn every frame, at one texel per art pixel: what moves
+--           (the train, the gates, people and a dog, the lamps, petals) over
+--           GROUND's pixels, lit, cut to hard pixels and snapped to the
+--           palette; then the evening sky.
+--   SHOW    the layer shader that scales LIVE up, nearest-neighbour.
+--
+-- Forms are sculpted in 3D, each surface point lit and coloured through a
+-- ramp, the picture drawn small, translucent things cut to on/off pixels by
+-- a Bayer threshold, every pixel the nearest of a small palette. Generated
+-- by src/build.py from src/*.wgsl: edit those, not this file.
+--
+-- params[0] = { -, people (0 or 1), dither, speed }
+-- params[1] = { alpha, brightness, zoom, lift }
+-- params[2] = { the sky's alpha, how muted (0 to 1), -, - }
+-- params[3] = { how many petals, -, -, - }
