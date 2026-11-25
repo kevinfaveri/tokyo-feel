@@ -64,3 +64,7 @@ It asks for `ui.change` (to draw a new chat's background), `ui.add` (to place th
 - `src/`: what that's built from. `build.py` lays out the crossing (trees, houses, poles and wires, the people's paths, the palette) as tables; `common.wgsl` is shared by `ground.wgsl` (the still scenery) and `live.wgsl` (what moves, and the sky); `show.wgsl` is the upscale.
 - `sounds/`: the clips, built by `python3 src/sounds.py` (numpy, and macOS's `afconvert`).
 - `zeron.luau`: Zeron's plugin SDK.
+
+## Licence
+
+MIT. See `LICENSE`.

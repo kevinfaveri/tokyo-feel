@@ -139,7 +139,8 @@
   "settings_description": "A pixel-art railway crossing in sakura season. Use it as the new chat wallpaper, and keep a faded one behind your chats. The theme and the sound are on two buttons at the bottom right.",
   "signature": {
     "files": {
-      "README.md": "2df8f8a286f81668c289b5ec7069cd069a77aa50b45d01556dea6ba357696500",
+      "LICENSE": "66865bda0187c03cdf93e29da2d90ea756a76c0013da8380404c16a86d67316d",
+      "README.md": "b046567835875d9ed5e380c08848de6df80e3c4ab767649a2f2f30cf41765fb7",
       "icon.svg": "1c03ef1bb598e64697fa38545f42ed0480ea77bdf2e9954d1f5fae6ca723b696",
       "init.luau": "ac806e009d72f2da2b7e9299189586d76370a455217d7c592edecccf2a85d6b9",
       "locales/en.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
@@ -178,7 +179,7 @@
       "zeron.luau": "178b79b55566c9643b26181539b8e1348482179a169da98ba384cd66f3f8a483"
     },
     "key": "nEJJsJc5eIrmIbW6qup5AO2JmwpmRpl-oO9CVbuohWc",
-    "sig": "39j_vFkIhsYIdDhTFfayI9iPXiPv8c0oMqc_5LwdbenMC9Z6yWuFM5o999DF7mAkB_kBABVfknPKi8YtbW9yAg"
+    "sig": "eaqrLl4ek6mjhL4GtWrsMFW2gBvqARy0WS5SlFe3uL5ZnmphGBtbUyY5qglo6eYg4pzH8FmpBANZu1oSLbBgAg"
   },
   "ui": {
     "change": [
