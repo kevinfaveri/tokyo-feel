@@ -2,9 +2,9 @@
 
 A Zeron plugin: a pixel-art railway crossing in sakura season, behind a new chat and, faded, behind your chats.
 
-You stand at the roadside in the evening. The crossing's lamps blink and its gates fall; a commuter train passes, its windows lit, sweeping the petals along with it; the gates rise and the people who waited cross: a parent and a child in a yellow hat, someone with a dog, an office worker and a student coming the other way. Sakura and green trees stand round the road, petals drift down and lie on the asphalt, a street lamp and a vending machine glow, and a far city with its tower is lit under a crescent moon.
+You stand at the roadside of a level crossing in Tokyo. The lamps blink and the gates fall; a train passes, sweeping petals along with it; the gates rise and the people who waited cross. Sakura and green trees stand round the road, petals and a few leaves fall from them, and the street runs on between two rows of buildings to the horizon, where the Skytree stands.
 
-Trains alternate: one from the left with a green stripe, the next from the right with a blue one.
+There are three themes: **sunrise**, **sunset** and **night**. Each has its own sky and light, its own people and animals, its own sounds and its own waltz, and each is a programme five minutes long.
 
 ## The look
 
@@ -18,7 +18,25 @@ Everything is on the GPU, in `tokyo_wgsl.luau`, at one texel per art pixel:
 - **LIVE**: what moves, drawn each frame over it: 24 frames a second behind a new chat, 15 behind chats.
 - **SHOW**: scales the result up, nearest-neighbour.
 
-Zeron's compositor steps the clock, so no script runs per frame. One round of the crossing takes 44 seconds.
+Zeron's compositor steps the clock, so no script runs per frame. One round of the crossing takes 44 seconds, and seven rounds make a theme's programme.
+
+## The programmes
+
+A round of the crossing takes 44 seconds, and seven rounds make a theme's programme. A commuter train and a Shinkansen take turns: the commuter trains (green, blue, orange) rattle by with a horn and the beat of their wheels; the Shinkansen is white with a blue line, more than twice as fast, and louder. Choosing a theme starts its programme from the beginning.
+
+**Day cycle** follows the computer's clock: sunrise from 05:00, sunset from 12:00, night from 19:00. When the clock passes one of those hours, the next theme's programme starts.
+
+**Sunrise.** A pale blue sky, the sun climbing over the city through the five minutes, mist down the street. People on their way to work and school every round; the school run in most, the dog's walk in the others. Sparrows peck about on the road (rounds 1, 4 and 7) and fly off; a bush warbler calls; a bicycle bell; the cat in round 5; a school's chime far off in round 6. Many birds in the air, and two flocks crossing the sky.
+
+**Sunset.** A sky from violet to gold, the sun sinking. Everyone is out. A bicycle bell (round 1); the black cat comes, sits and goes (rounds 2 and 5); crows (round 4); the child's red balloon gets away (round 6); a gust blows the falling petals down the street (round 7).
+
+**Night.** A dark sky with a crescent moon, stars and a shooting star now and then; the street lamps and the windows lit, the Skytree lit blue and violet, moths about the near lamp. Few people: someone home late from the office, the dog's last walk twice, a student back from cram school once. The cat comes three times. Round 5's commuter train is a freight train. Crickets, an owl, a dog barking far off, a can dropping in the vending machine.
+
+## Sound
+
+Two buttons sit at the bottom right of a chat and of a new chat: **Theme** (it steps through sunrise, sunset, night and day cycle) and **Turn sound on** / **Turn sound off**. With the sound on you hear the theme's air (birds at sunrise and sunset, crickets at night), each round's bell in time with its lamps, its train passing from the side it comes from, and that round's own sounds. Very low under it plays the theme's waltz for a soft piano and a music box: a bright one in C at sunrise, the one in F at sunset, a lullaby in A minor at night, with a round or two left silent.
+
+Zeron lends plugins no audio, so the plugin plays the clips in `sounds/` with macOS's `afplay`. The sound works on macOS only. The clips, the waltzes included, are synthesized by `python3 src/sounds.py`; no recording is used.
 
 ## Install
 
@@ -34,8 +52,9 @@ In Zeron: **Settings → Plugins → Install…**, then the repository `kevinfav
 - **People**: the people and the dog who wait and cross.
 - **Petals**: how many drift on the air.
 - **Show behind chats** and **Strength**: the faded crossing behind a chat's messages.
+- **Volume**: Quiet, Normal or Loud.
 
-It asks for `ui.change` (to draw a new chat's background) and `ui.add` (to place the crossing behind the transcript), nothing else.
+It asks for `ui.change` (to draw a new chat's background), `ui.add` (to place the crossing behind the transcript and the two buttons) and `commands` for three programs: `afplay` (plays a clip), `pkill` (stops the plugin's own clips, matched by their path) and `printenv` (reads `HOME` to find the clips). Zeron's consent sheet says of programs it does not know that they "can do anything you can"; `init.luau` shows the only calls made.
 
 ## Files
 
@@ -43,4 +62,5 @@ It asks for `ui.change` (to draw a new chat's background) and `ui.add` (to place
 - `init.luau`: where the crossing is placed, its settings, the shaders' parameters.
 - `tokyo_wgsl.luau`: the three shader sources, built by `python3 src/build.py`.
 - `src/`: what that's built from. `build.py` lays out the crossing (trees, houses, poles and wires, the people's paths, the palette) as tables; `common.wgsl` is shared by `ground.wgsl` (the still scenery) and `live.wgsl` (what moves, and the sky); `show.wgsl` is the upscale.
+- `sounds/`: the clips, built by `python3 src/sounds.py` (numpy, and macOS's `afconvert`).
 - `zeron.luau`: Zeron's plugin SDK.

@@ -1,12 +1,18 @@
 {
-  "description": "A pixel-art railway crossing in sakura season, in 3D: a train passes, the gates fall and the lamps blink, petals drift, and people wait by the road. Behind a new chat and, faded, behind your chats.",
+  "commands": [
+    "afplay",
+    "pkill",
+    "printenv"
+  ],
+  "description": "A pixel-art railway crossing in sakura season, in 3D, in three themes: sunrise, sunset and night. Commuter trains and the Shinkansen pass, the gates fall, people, a cat and birds come and go through a five-minute programme each, with its own sounds and waltz. Behind a new chat and, faded, behind your chats.",
   "entry": "init.luau",
   "icon": "icon.svg",
   "id": "tokyo-feel",
   "name": "Tokyo Feel",
   "permissions": [
     "ui.change",
-    "ui.add"
+    "ui.add",
+    "commands"
   ],
   "settings": [
     {
@@ -54,7 +60,7 @@
     },
     {
       "default": "some",
-      "description": "How many petals drift on the air.",
+      "description": "How many petals and leaves fall from the trees.",
       "id": "petals",
       "kind": "choice",
       "label": "Petals",
@@ -105,31 +111,79 @@
       ],
       "section": "Behind chats",
       "style": "segmented"
+    },
+    {
+      "default": "normal",
+      "description": "How loud the crossing is when its sound is on (the button is at the bottom right). macOS only.",
+      "id": "volume",
+      "kind": "choice",
+      "label": "Volume",
+      "options": [
+        {
+          "label": "Quiet",
+          "value": "quiet"
+        },
+        {
+          "label": "Normal",
+          "value": "normal"
+        },
+        {
+          "label": "Loud",
+          "value": "loud"
+        }
+      ],
+      "section": "Sound",
+      "style": "segmented"
     }
   ],
-  "settings_description": "A pixel-art railway crossing in sakura season. Use it as the new chat wallpaper, and keep a faded one behind your chats.",
+  "settings_description": "A pixel-art railway crossing in sakura season. Use it as the new chat wallpaper, and keep a faded one behind your chats. The theme and the sound are on two buttons at the bottom right.",
   "signature": {
     "files": {
-      "README.md": "6972f4a7f580555ef6bb09907005aaef8a8eb0c8c7c771f83ed3cfb26d05eb5c",
+      "README.md": "2df8f8a286f81668c289b5ec7069cd069a77aa50b45d01556dea6ba357696500",
       "icon.svg": "1c03ef1bb598e64697fa38545f42ed0480ea77bdf2e9954d1f5fae6ca723b696",
-      "init.luau": "1e75ff1abef12e6e0532d0357013be187e23c049e0ee585f57c14bc7e4b7a19d",
+      "init.luau": "ac806e009d72f2da2b7e9299189586d76370a455217d7c592edecccf2a85d6b9",
       "locales/en.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
-      "src/build.py": "4131f4aaa39bf2817e68a0d7f70b818434fdfb22680f84a277aed533dd2568aa",
+      "sounds/air-night.m4a": "16f475504f8f48470d97f0b6c960ebb9fe6793f8b9e27b03d7a0e040a5584ddb",
+      "sounds/air-sunrise.m4a": "bc02a27446c63308b386fc2628dfcf2794a9b330ae1b21f259eb1c90b9dc96d8",
+      "sounds/air-sunset.m4a": "6c1de21b53433037412386f0d3bc88b29770cb801558f3c700288da68e1a3844",
+      "sounds/round-night-0.m4a": "792bf2b49da04027272bbc572b2b5ce45da2437a95ff2727f7da0c1a59773bd8",
+      "sounds/round-night-1.m4a": "d6e65b6801ac9df7275c701b1cd43ff7526b92aaebc884c536b99e1309c1810b",
+      "sounds/round-night-2.m4a": "69b19ecd767964c3e21e25a27c2da2f905073bb81d70b7a42e2dfbd0317727e6",
+      "sounds/round-night-3.m4a": "550ab77d5c0ba9918b7e2e191060a94cff6519f67ba0705073e612078f3e169e",
+      "sounds/round-night-4.m4a": "3ba262bd0c3a2f6c37b14c83464f08b266fb73a00d60220370cc9f28b4d6f206",
+      "sounds/round-night-5.m4a": "63644da7a9dfb5ae1f5ad1ed14d8993ff7f06645fe8ebff5173905d71e7d0504",
+      "sounds/round-night-6.m4a": "cae8b7fe4b989e5dd360cadd8a52ecb3d07f557aec816bebab6abb01d9254eef",
+      "sounds/round-sunrise-0.m4a": "ffed3f655834c400a413cd93616681f591d6d4f6f1a4e0320ca79a1e41b17d58",
+      "sounds/round-sunrise-1.m4a": "c727052e7df0ee8fce13a893b06bc4b0f7263801289ecf20ea0adf518da13ced",
+      "sounds/round-sunrise-2.m4a": "171a70153827b898052cf6395f1e2e9567d1678b9546622f3d0992b2112a213f",
+      "sounds/round-sunrise-3.m4a": "f0047520505d418c92c41960917d00acdbe3d741c58040b4f4c7e8f8288415cb",
+      "sounds/round-sunrise-4.m4a": "7c1bdfa41ef2639f3968a1f94e73f1085a4be9c242b7c91cece2b7ddd3656553",
+      "sounds/round-sunrise-5.m4a": "3a26d1f54d4735334f7945967791520509af24b1291a9f132d64ea2350f41c69",
+      "sounds/round-sunrise-6.m4a": "80c2bd97c348ed7e8ed6fe1fbd058bccbf033f50253dd2777ef789275a03f78c",
+      "sounds/round-sunset-0.m4a": "b5598a5af1f8db3995f596b98d7d927f63ab524acea0d37afea46c734ff7fbd7",
+      "sounds/round-sunset-1.m4a": "2f952e5ddb1e6aab7232b5f73d82befb8cce5aaf715feeb90abe37b5a56f0919",
+      "sounds/round-sunset-2.m4a": "9902e7858bd3419e6cec6ac5e7ccac3389a14d950b49d9b1dd96eea032a08f6b",
+      "sounds/round-sunset-3.m4a": "a8d5b54ccfa02bff77b3f8a88ec3bf895508df85d62815b61b7a6e8607dcfe1b",
+      "sounds/round-sunset-4.m4a": "f9b40a202385f38814c66773b8ee573ff1f10adce4b6e162eb5fadc798017bec",
+      "sounds/round-sunset-5.m4a": "4498c6db66534be9655e320f370e28f3920bd4fc6a951cc98ee4209c60737138",
+      "sounds/round-sunset-6.m4a": "a921a0ea0c3f42cb6405d0884deadce74b47b00a609694f39484f8bb52a63761",
+      "src/build.py": "a460b4e25fca7e287da8e7c36433e3dbeb5e5bf677ba54f3a49f23bab53f0237",
       "src/common.wgsl": "13b65bcc7b72c46f5601dc0fbfcc1d1324d94cbf7dcd276819bbbfd62f7a8d29",
-      "src/ground.wgsl": "d06b7ad0acba9f155b6dc97ee89869534ac0ccddbd49d03834c5697a905e2b0f",
-      "src/head.txt": "086086c83d354446a884021d5e91b3320f3e7253d7b326ef9cac0b034a44e598",
-      "src/live.wgsl": "4176f632e57a765e985b12fa6bd63af611b83356db23ffe23cc40671f7fd847f",
+      "src/ground.wgsl": "e8eef99d502770a81da0c104d0a81ccc682aebdcda6260d0d3183832d6720efb",
+      "src/head.txt": "91040614cb8bad18b60b614eeea11ce7f26df60666ab0f0731f757d0db23a12b",
+      "src/live.wgsl": "97232d990c6fa28554e6f5745fa01b57bb710cfec0dec0260c2b0a417f41671b",
       "src/show.wgsl": "7856f92672b95b9b0c011ef4ef14b3fb4f034ee5ab42515e7ec82d7df5113452",
-      "tokyo_wgsl.luau": "6f18fbf673a5933e28e1867ae70faeef92848280ecdfbf4ce1972928e4060221",
+      "src/sounds.py": "b5a358c74aea20b04e528e28fb3e9fc4bb6b0295c65cf06b7e793f614efaf885",
+      "tokyo_wgsl.luau": "74aeacbe3093b0c12e2664be3d3d65414b928b14bfdaf7efcb9eb7d9fd954321",
       "zeron.luau": "178b79b55566c9643b26181539b8e1348482179a169da98ba384cd66f3f8a483"
     },
     "key": "nEJJsJc5eIrmIbW6qup5AO2JmwpmRpl-oO9CVbuohWc",
-    "sig": "pFPX0Udua1kznD9nsf-D0M8t1ESoNirNZJvOX6-4KWYdUswrKwWSLscnUx6dt5Vp9r-kT5Sa-f1d-T7Q6D3GCw"
+    "sig": "39j_vFkIhsYIdDhTFfayI9iPXiPv8c0oMqc_5LwdbenMC9Z6yWuFM5o999DF7mAkB_kBABVfknPKi8YtbW9yAg"
   },
   "ui": {
     "change": [
       "#new-chat-background"
     ]
   },
-  "version": "0.1.0"
+  "version": "1.0.0"
 }
