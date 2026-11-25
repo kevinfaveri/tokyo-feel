@@ -127,37 +127,23 @@ def commuter_train(from_right):
 
 
 def shinkansen(from_right):
-    """Faster and louder: a wall of air that arrives at once, a falling whine, no wheel beat."""
+    """Faster and louder: a wall of air that arrives at once, no wheel beat. (No whine: a falling tone reads as a siren.)"""
     t = seconds(ROUND_CLIP_SECONDS)
     near = smoothstep(SHINKANSEN_ARRIVES - 1.1, SHINKANSEN_ARRIVES + 0.15, t) * (1.0 - smoothstep(SHINKANSEN_LEAVES - 0.1, SHINKANSEN_LEAVES + 2.2, t))
     air = shaped_noise(ROUND_CLIP_SECONDS, band(180.0, 5200.0)) * 0.5
     ground = shaped_noise(ROUND_CLIP_SECONDS, band(24.0, 150.0)) * 0.8
-    passing = np.clip((t - SHINKANSEN_ARRIVES) / (SHINKANSEN_LEAVES - SHINKANSEN_ARRIVES), 0.0, 1.0)
-    whine_pitch = 1150.0 - 420.0 * smoothstep(0.35, 0.65, passing)
-    whine = np.sin(2 * np.pi * np.cumsum(whine_pitch) / SAMPLE_RATE) * 0.045
     thump = np.zeros_like(t)
     arrival = seconds(0.5)
     add_at(thump, SHINKANSEN_ARRIVES - 0.05, np.sin(2 * np.pi * 48.0 * arrival) * np.exp(-arrival / 0.12) * 0.7)
-    body = (air + ground + whine) * near**1.3 + thump
+    body = (air + ground) * near**1.3 + thump
     return panned(body, side_to_side(t, SHINKANSEN_ARRIVES, SHINKANSEN_LEAVES, from_right))
-
-
-def horn():
-    t = seconds(0.9)
-    pitches = (349.0, 440.0)
-    tone = sum(np.sin(2 * np.pi * pitch * t) + 0.4 * np.sin(4 * np.pi * pitch * t) for pitch in pitches)
-    envelope = smoothstep(0.0, 0.06, t) * (1.0 - smoothstep(len(t) / SAMPLE_RATE - 0.25, len(t) / SAMPLE_RATE, t))
-    return tone * envelope * 0.035
 
 
 def crossing(from_right, kind):
     """kind: "commuter" or "shinkansen"."""
     if kind == "shinkansen":
         return panned(bell(), 0.15) + shinkansen(from_right)
-    mix = panned(bell(), 0.15) + commuter_train(from_right)
-    horn_track = np.zeros(len(mix))
-    add_at(horn_track, TRAIN_ARRIVES - 1.6, horn())
-    return mix + panned(horn_track, 0.7 if from_right else -0.7)
+    return panned(bell(), 0.15) + commuter_train(from_right)
 
 
 def meow():

@@ -22,7 +22,7 @@ The plugin keeps one clock, the computer's. Twelve times a second it tells the s
 
 ## The programmes
 
-A round of the crossing takes 44 seconds, and seven rounds make a theme's programme. A commuter train and a Shinkansen take turns: the commuter trains (green, blue, orange) rattle by with a horn and the beat of their wheels; the Shinkansen is white with a blue line, more than twice as fast, and louder. Choosing a theme starts its programme from the beginning.
+A round of the crossing takes 44 seconds, and seven rounds make a theme's programme. A commuter train and a Shinkansen take turns: the commuter trains (green, blue, orange) rattle by with the beat of their wheels; the Shinkansen is white with a blue line, more than twice as fast, and louder. Choosing a theme starts its programme from the beginning.
 
 **Day cycle** follows the computer's clock: sunrise from 05:00, sunset from 12:00, night from 19:00. When the clock passes one of those hours, the programme you are watching plays to its end, and then the next theme's programme starts.
 
