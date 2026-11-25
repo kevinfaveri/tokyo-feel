@@ -31,6 +31,10 @@ SHINKANSEN_LEAVES = 9.65
 THEMES = ("sunrise", "sunset", "night")
 SECONDS_PER_CAR = 1.0
 ROUND_CLIP_SECONDS = 46.5
+NEAR_CAR_STARTS = 0.4
+FAR_CAR_STARTS = 1.4
+CAR_STOPS_AFTER = 3.0
+CAR_GOES_AFTER = 14.9
 MUSIC_LEVEL = 0.032
 AIR_SECONDS = 12.0
 AIR_FADE_SECONDS = 1.5
@@ -177,6 +181,31 @@ def bicycle_bell():
     t = seconds(0.9)
     ring = sum(level * np.sin(2 * np.pi * pitch * t) for pitch, level in ((2090.0, 1.0), (3140.0, 0.5), (4730.0, 0.25)))
     return ring * np.exp(-t / 0.25) * smoothstep(0.0, 0.003, t) * 0.02
+
+
+def engine(stops_after, goes_after, idle_pitch, cruise_pitch, beat):
+    """An engine that comes up to the gate, idles there and pulls away: `beat` is how much each firing stands out."""
+    length = goes_after + 7.0
+    t = seconds(length)
+    coming = 1.0 - smoothstep(0.0, stops_after, t)
+    going = smoothstep(goes_after, goes_after + 3.5, t)
+    gear_change = 0.82 + 0.18 * (1.0 - smoothstep(goes_after + 1.6, goes_after + 1.75, t) * (1.0 - smoothstep(goes_after + 1.75, goes_after + 2.6, t)))
+    pitch = idle_pitch + (cruise_pitch - idle_pitch) * np.maximum(coming * 0.6, going * gear_change)
+    phase = 2 * np.pi * np.cumsum(pitch) / SAMPLE_RATE
+    firing = sum(np.sin(harmonic * phase) / harmonic for harmonic in range(1, 7))
+    firing = firing * (1.0 - beat + beat * np.maximum(np.sin(phase * 0.5), 0.0) ** 2)
+    tyres = shaped_noise(length, band(250.0, 1400.0)) * np.maximum(coming, going)
+    distance = 1.0 - smoothstep(goes_after + 2.0, length, t)
+    loudness = (0.22 + 0.5 * coming + 0.78 * going) * smoothstep(0.0, 1.2, t) * distance
+    return (firing * 0.035 + tyres * 0.012) * loudness
+
+
+def car():
+    return engine(CAR_STOPS_AFTER, CAR_GOES_AFTER, 38.0, 96.0, 0.25)
+
+
+def motorcycle():
+    return engine(CAR_STOPS_AFTER, CAR_GOES_AFTER, 52.0, 150.0, 0.7)
 
 
 def gust():
@@ -371,16 +400,16 @@ SCREENPLAYS = {
     "sunrise": [
         ((MORNING, True, True), [(20.0, sparrows, 1.0, 0.0)]),
         ((MORNING_ANSWER, False, True), [(22.0, bush_warbler, 1.0, -0.6)]),
-        ((MORNING, False, True), [(18.0, bush_warbler, 1.0, 0.5), (30.0, bicycle_bell, 1.0, 0.6), (30.5, bicycle_bell, 1.0, 0.6)]),
+        ((MORNING, False, True), [(18.0, bush_warbler, 1.0, 0.5), (15.0, bicycle_bell, 1.0, -0.5), (15.5, bicycle_bell, 1.0, -0.5)]),
         (None, [(20.0, sparrows, 1.0, 0.0), (36.0, bush_warbler, 0.7, -0.4)]),
         ((MORNING_ANSWER, True, True), [(24.6, meow, 1.0, -0.2)]),
         (("sparse", MORNING, False, False), [(17.0, school_chime, 1.0, 0.3)]),
         ((MORNING, True, True), [(20.0, sparrows, 1.0, 0.0)]),
     ],
     "sunset": [
-        ((THEME, False, True), [(29.0, bicycle_bell, 1.0, 0.5), (29.5, bicycle_bell, 1.0, 0.5)]),
+        ((THEME, False, True), [(15.0, bicycle_bell, 1.0, -0.5), (15.5, bicycle_bell, 1.0, -0.5)]),
         ((ANSWER, False, True), [(24.6, meow, 1.0, -0.2)]),
-        ((THEME, True, True), []),
+        ((THEME, True, True), [(NEAR_CAR_STARTS, car, 1.0, -0.3), (FAR_CAR_STARTS, car, 0.6, 0.3)]),
         (None, [(20.0, crow, 1.0, -0.6), (20.5, crow, 1.0, -0.6), (21.3, crow, 1.0, -0.6), (30.0, crow, 0.8, 0.4), (30.5, crow, 0.8, 0.4)]),
         (("sparse", THEME, False, False), [(24.6, meow, 1.0, -0.2), (26.4, meow, 0.7, -0.2)]),
         ((ANSWER, True, True), []),
@@ -392,7 +421,7 @@ SCREENPLAYS = {
         ((LULLABY_ANSWER, False, True), [(30.0, can_drop, 1.0, 0.7)]),
         (("sparse", LULLABY, False, False), [(24.6, meow, 1.0, -0.2), (36.0, owl, 0.8, 0.5)]),
         (None, [(26.0, dog_bark, 0.8, -0.5), (26.5, dog_bark, 0.8, -0.5), (27.4, dog_bark, 0.6, -0.5)]),
-        ((LULLABY, True, True), [(28.0, owl, 1.0, -0.7)]),
+        ((LULLABY, True, True), [(NEAR_CAR_STARTS, motorcycle, 1.0, -0.3), (FAR_CAR_STARTS, car, 0.6, 0.3), (28.0, owl, 1.0, -0.7)]),
         (("sparse", LULLABY_ANSWER, False, True), [(24.6, meow, 1.0, -0.2)]),
     ],
 }
