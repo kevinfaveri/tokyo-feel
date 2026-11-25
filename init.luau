@@ -18,7 +18,7 @@
 -- sounds and waltz: a programme of seven rounds, five minutes long, played
 -- from its start whenever the theme is chosen.
 --
--- Zeron lends plugins no audio, so the sound is macOS's afplay playing the
+-- Zeron lends plugins no audio, so the sound is player.js (macOS) playing the
 -- clips in sounds/ (made by src/sounds.py): the theme's air on a loop (birds
 -- at sunrise and sunset, crickets at night), and one clip per round of the
 -- crossing, started as the lamps start to blink: its train, what else
@@ -97,14 +97,11 @@ local SECONDS_BEFORE_FIRST_ROUND = 2.5
 local ROUNDS_IN_PROGRAMME = 7
 local AIR_CLIP_SECONDS = 12
 local AIR_OVERLAP_SECONDS = 1.5
--- (About how long afplay takes to make its first sound.)
-local PLAYER_START_SECONDS = 0.12
--- (A round's clip can't start part way in: one that is this late waits for
--- the next round.)
-local LATEST_CLIP_START_SECONDS = 0.6
+-- (A player is started this long before its clip is due, and waits.)
+local PLAYER_START_SECONDS = 0.5
 local LONGEST_CLIP_SECONDS = 70
 local VOLUME = { quiet = 0.3, normal = 0.6, loud = 1 }
-local OWN_CLIPS = "tokyo-feel/sounds/"
+local OWN_PLAYER = "tokyo-feel/player.js"
 -- (As often as the wallpaper draws a frame: a tick between frames would be
 -- a second of the programme nobody sees.)
 local TICK_MS = 83
@@ -119,6 +116,10 @@ type ShownScene = {}
 
 local programme_seconds_shown = ui.state("tokyo-feel.programme-seconds", 0)
 local sounds_folder: string? = nil
+local player_script: string? = nil
+-- (The button's choice, kept here too: the saved one is written a moment late.)
+local sound_wanted: boolean? = nil
+local times_silenced = 0
 local shown_scenes: { ShownScene } = {}
 local programme_started_ms: number? = nil
 local playing = false
@@ -133,8 +134,8 @@ local function motion_is_reduced(): boolean
 	return prefers ~= nil and prefers.reduced_motion ~= nil and prefers.reduced_motion:peek() == true
 end
 
-local function stop_clips(named: string)
-	zeron.run("pkill", { "-f", OWN_CLIPS .. named })
+local function stop_clips()
+	zeron.run("pkill", { "-f", OWN_PLAYER })
 end
 
 local function silence()
@@ -142,22 +143,30 @@ local function silence()
 		return
 	end
 	playing = false
-	stop_clips("")
+	times_silenced += 1
+	stop_clips()
 end
 
-local function sound_failed()
-	if not playing then
+-- (Silence stops the players, and a stopped player reports a failure. Only
+-- a player that fails while its own sound is still wanted is a real one.)
+local function sound_failed(started_in: number)
+	if not playing or started_in ~= times_silenced then
 		return
 	end
 	silence()
+	sound_wanted = false
 	sound_on:set(false)
-	zeron.toast("Tokyo Feel's sound needs macOS (it plays with afplay)")
+	zeron.toast("Tokyo Feel's sound needs macOS")
 end
 
-local function play(clip: string)
+local function play(clip: string, clip_starts_at_ms: number)
 	local volume = VOLUME[volume_setting:peek() or "normal"] or VOLUME.normal
 	local file = `{sounds_folder}/{clip}.m4a`
-	zeron.run("afplay", { "-v", tostring(volume), file }, { timeout = LONGEST_CLIP_SECONDS }):after(nil, sound_failed)
+	local started_in = times_silenced
+	local player = { "-l", "JavaScript", player_script :: string, file, string.format("%.0f", clip_starts_at_ms), tostring(volume) }
+	zeron.run("osascript", player, { timeout = LONGEST_CLIP_SECONDS }):after(nil, function()
+		sound_failed(started_in)
+	end)
 end
 
 local function start_sounds()
@@ -169,28 +178,31 @@ local function start_sounds()
 	next_air_at_ms = ui.now()
 end
 
-local function rounds_begun(programme_seconds: number): number
-	return math.floor((programme_seconds + PLAYER_START_SECONDS - SECONDS_BEFORE_FIRST_ROUND) / ROUND_SECONDS)
-end
-
-local function seconds_into_round(programme_seconds: number): number
-	return (programme_seconds + PLAYER_START_SECONDS - SECONDS_BEFORE_FIRST_ROUND) % ROUND_SECONDS
-end
-
-local function play_what_is_due(programme_seconds: number)
-	local now = ui.now()
-	if now >= next_air_at_ms then
-		play(`air-{theme_now()}`)
-		next_air_at_ms = now + (AIR_CLIP_SECONDS - AIR_OVERLAP_SECONDS) * 1000
+local function sound_is_wanted(): boolean
+	if sound_wanted == nil then
+		return sound_on:peek() == true
 	end
-	local begun = rounds_begun(programme_seconds)
-	if begun < 0 or begun == last_round_started then
+	return sound_wanted
+end
+
+-- (The player joins a clip at the right second, so the round that is under
+-- way starts sounding at once, wherever in it we are.)
+local function play_what_is_due(started_ms: number, programme_seconds: number)
+	local now = ui.now()
+	if next_air_at_ms < now - AIR_OVERLAP_SECONDS * 1000 then
+		next_air_at_ms = now
+	end
+	if now >= next_air_at_ms - PLAYER_START_SECONDS * 1000 then
+		play(`air-{theme_now()}`, next_air_at_ms)
+		next_air_at_ms += (AIR_CLIP_SECONDS - AIR_OVERLAP_SECONDS) * 1000
+	end
+	local begun = math.floor((programme_seconds + PLAYER_START_SECONDS - SECONDS_BEFORE_FIRST_ROUND) / ROUND_SECONDS)
+	if begun < 0 or begun == last_round_started or motion_is_reduced() then
 		return
 	end
 	last_round_started = begun
-	if seconds_into_round(programme_seconds) <= LATEST_CLIP_START_SECONDS and not motion_is_reduced() then
-		play(`round-{theme_now()}-{begun % ROUNDS_IN_PROGRAMME}`)
-	end
+	local round_starts_at_ms = started_ms + (SECONDS_BEFORE_FIRST_ROUND + begun * ROUND_SECONDS) * 1000
+	play(`round-{theme_now()}-{begun % ROUNDS_IN_PROGRAMME}`, round_starts_at_ms)
 end
 
 -- (A theme's scene is built anew, so its programme and its sounds start over.)
@@ -258,11 +270,11 @@ local function tick()
 	if not motion_is_reduced() then
 		programme_seconds_shown:set(programme_seconds % (ROUND_SECONDS * ROUNDS_IN_PROGRAMME * PROGRAMMES_BEFORE_CLOCK_WRAPS))
 	end
-	if not playing and sound_on:peek() == true then
+	if not playing and sound_is_wanted() then
 		start_sounds()
 	end
 	if playing then
-		play_what_is_due(programme_seconds)
+		play_what_is_due(started_ms, programme_seconds)
 	end
 end
 
@@ -286,7 +298,8 @@ local function choose_next_theme()
 end
 
 local function toggle_sound()
-	local turn_on = sound_on:peek() ~= true
+	local turn_on = not sound_is_wanted()
+	sound_wanted = turn_on
 	sound_on:set(turn_on)
 	if turn_on then
 		start_sounds()
@@ -306,8 +319,9 @@ zeron.run("printenv", { "HOME" }):after(function(answer: any)
 		return
 	end
 	sounds_folder = `{home}/.zeron/plugins/tokyo-feel/sounds`
+	player_script = `{home}/.zeron/plugins/tokyo-feel/player.js`
 	-- (Clips left playing by a window that closed.)
-	stop_clips("")
+	stop_clips()
 end)
 
 local compiled_shaders: { [string]: any } = {}
