@@ -26,11 +26,11 @@ A round of the crossing takes 44 seconds, and seven rounds make a theme's progra
 
 **Day cycle** follows the computer's clock: sunrise from 05:00, sunset from 12:00, night from 19:00. When the clock passes one of those hours, the programme you are watching plays to its end, and then the next theme's programme starts.
 
-**Sunrise.** A pale blue sky, the sun climbing over the city through the five minutes, mist down the street. People on their way to work and school every round; the school run in most, the dog's walk in the others. Sparrows peck about on the road (rounds 1, 4 and 7) and fly off; a bush warbler calls; a bicycle bell; the cat in round 5; a school's chime far off in round 6. Many birds in the air, and two flocks crossing the sky.
+**Sunrise.** A pale blue sky, the sun climbing over the city through the five minutes, mist down the street. People on their way to work and school every round; the school run in most, the dog's walk in the others. Sparrows peck about on the road (rounds 1, 4 and 7) and fly off; a bush warbler calls; someone on a bicycle waits at the gate, rings and rides on (round 3); the cat in round 5; a school's chime far off in round 6. Many birds in the air, and two flocks crossing the sky.
 
-**Sunset.** A sky from violet to gold, the sun sinking. Everyone is out. A bicycle bell (round 1); the black cat comes, sits and goes (rounds 2 and 5); crows (round 4); the child's red balloon gets away (round 6); a gust blows the falling petals down the street (round 7).
+**Sunset.** A sky from violet to gold, the sun sinking. Everyone is out. Someone on a bicycle waits at the gate, rings and rides on (round 1); two cars wait, one on each side of the track, and pass each other when the gates rise (round 3); the black cat comes, sits and goes (rounds 2 and 5); crows (round 4); the child's red balloon gets away (round 6); a gust blows the falling petals down the street (round 7).
 
-**Night.** A dark sky with a crescent moon, stars and a shooting star now and then; the street lamps and the windows lit, the Skytree lit blue and violet, moths about the near lamp. Few people: someone home late from the office, the dog's last walk twice, a student back from cram school once. The cat comes three times. Round 5's commuter train is a freight train. Crickets, an owl, a dog barking far off, a can dropping in the vending machine.
+**Night.** A dark sky with a crescent moon, stars and a shooting star now and then; the street lamps and the windows lit, the Skytree lit blue and violet, moths about the near lamp. Few people: someone home late from the office, the dog's last walk twice, a student back from cram school once. The cat comes three times. Round 5's commuter train is a freight train. In round 6 a motorcycle waits on this side and a car, its headlamps on, on the far side. Crickets, an owl, a dog barking far off, a can dropping in the vending machine.
 
 ## Sound
 
