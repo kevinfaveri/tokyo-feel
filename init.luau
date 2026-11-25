@@ -418,7 +418,7 @@ zeron.place {
 	end,
 }
 
-local function CornerButton(props: { id: string, label: string, pressed: () -> boolean, words: () -> string, on_click: () -> () }): Node
+local function CornerButton(props: { id: string, label: string, words: () -> string, on_click: () -> () }): Node
 	return ui.button {
 		id = props.id,
 		label = props.label,
@@ -426,23 +426,15 @@ local function CornerButton(props: { id: string, label: string, pressed: () -> b
 		px = "$space.2",
 		rounded = "$radius.full",
 		cursor = "pointer",
-		bg = function(): string
-			return if props.pressed() then "$hover" else "#00000000"
-		end,
-		color = function(): string
-			return if props.pressed() then "$text.primary" else "$text.secondary"
-		end,
-		hover = { bg = "$hover", color = "$text.primary" },
+		bg = "$hover",
+		color = "$text.primary",
+		hover = { bg = "$pressed" },
 		active = { bg = "$pressed" },
 		on_click = props.on_click,
 		ui.presence(props.words, function(words: string): Node
 			return ui.text { words, text_size = "$font.size.sm", weight = "$font.weight.medium" }
 		end),
 	}
-end
-
-local function never(): boolean
-	return false
 end
 
 local function Corner(): Node
@@ -460,7 +452,6 @@ local function Corner(): Node
 			CornerButton {
 				id = "tokyo-feel-theme",
 				label = "Tokyo Feel theme",
-				pressed = never,
 				words = function(): string
 					if theme_choice:get() == DAY_CYCLE then
 						return `Theme: Day cycle ({THEME_LABEL[theme()]})`
@@ -472,9 +463,6 @@ local function Corner(): Node
 			CornerButton {
 				id = "tokyo-feel-sound",
 				label = "Crossing sound",
-				pressed = function(): boolean
-					return sound_on:get() == true
-				end,
 				words = function(): string
 					return if sound_on:get() == true then "Turn sound off" else "Turn sound on"
 				end,
