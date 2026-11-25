@@ -1928,12 +1928,52 @@ fn tk_sky(rd: vec3<f32>, cell: vec2<f32>, res: vec2<f32>, e: f32) -> vec3<f32> {
 	let up = rd.y;
 	let az = rd.x / max(-rd.z, 0.2);
 	let night = g_theme == 2;
+	// The city, near: blocks along the horizon. At night its windows are
+	// lit; by day a few catch the sun.
+	var lit_share = 0.93;
+	var far_lit_share = 0.95;
+	if (night) {
+		lit_share = 0.78;
+		far_lit_share = 0.84;
+	}
+	let block = floor(az * 30.0);
+	var roof = 0.015 + 0.04 * tk_h31(vec3<f32>(block, 1.0, 5.0));
+	if (tk_h31(vec3<f32>(block, 2.0, 9.0)) > 0.8) {
+		roof = roof + 0.05;
+	}
+	if (up < roof) {
+		let wx = floor(fract(az * 30.0) * 4.0);
+		if (up > 0.0 && wx > 0.5 && tk_h31(vec3<f32>(block * 4.0 + wx, floor(up * 300.0), 4.0)) > lit_share) {
+			return tk_pal(P_WARM + 3);
+		}
+		return tk_pal(2);
+	}
+	// And farther: taller towers, paler.
+	let far_at = az * 13.0 + 3.3;
+	let far_block = floor(far_at);
+	var far_roof = 0.045 + 0.075 * tk_h31(vec3<f32>(far_block, 6.0, 2.0));
+	if (tk_h31(vec3<f32>(far_block, 3.0, 4.0)) > 0.7) {
+		far_roof = far_roof + 0.05;
+	}
+	let far_edge = abs(fract(far_at) - 0.5);
+	if (up < far_roof && far_edge < 0.42) {
+		let wx = floor(fract(far_at) * 7.0);
+		let wy = floor(up * 210.0);
+		if (far_edge < 0.34 && up < far_roof - 0.008 && tk_h31(vec3<f32>(far_block * 7.0 + wx, wy, 8.0)) > far_lit_share) {
+			if (night) {
+				return tk_pal(P_WARM + 2);
+			}
+			return tk_pal(8);
+		}
+		return tk_pal(3);
+	}
 	// The Skytree, in its own proportions: a lattice body, wide at the foot
 	// and drawn in to a round shaft; the lower deck, three tiers that widen
 	// upward; a slim neck; the small upper deck; the antenna in two steps,
-	// a beacon blinking at the tip. By day it is pale, the sun glinting off
+	// a beacon blinking at the tip. It stands behind the city. By day it is pale, the sun glinting off
 	// its decks; at night it is lit, blue then violet, with a light running
-	// round each deck.
+	// round each deck, a band of white climbing it, and lamps twinkling in
+	// the lattice.
 	let ty = up / 0.262;
 	let from_tree = az + 0.064;
 	let lower_deck = ty >= 0.52 && ty < 0.578;
@@ -1988,6 +2028,9 @@ fn tk_sky(rd: vec3<f32>, cell: vec2<f32>, res: vec2<f32>, e: f32) -> vec3<f32> {
 			deck = tk_pal(P_WARM + 3);
 			glint = tk_pal(9);
 			round_speed = 0.22;
+			if (fract(e * 0.11 - ty * 1.3) < 0.09) {
+				glow = tk_pal(P_GREY + 5);
+			}
 		}
 		let across = from_tree / tree_half;
 		let row = floor(ty * 122.0);
@@ -2017,48 +2060,12 @@ fn tk_sky(rd: vec3<f32>, cell: vec2<f32>, res: vec2<f32>, e: f32) -> vec3<f32> {
 			return glow;
 		}
 		if (fract(ty * 13.0 + from_tree * 60.0) < 0.5 == fract(ty * 13.0 - from_tree * 60.0) < 0.5) {
+			if (night && tk_h31(vec3<f32>(row, floor(across * 3.0), floor(e * 2.5))) > 0.9) {
+				return tk_pal(P_WARM + 4);
+			}
 			return strut;
 		}
 		return glow;
-	}
-	// The city, near: blocks along the horizon. At night its windows are
-	// lit; by day a few catch the sun.
-	var lit_share = 0.93;
-	var far_lit_share = 0.95;
-	if (night) {
-		lit_share = 0.78;
-		far_lit_share = 0.84;
-	}
-	let block = floor(az * 30.0);
-	var roof = 0.015 + 0.04 * tk_h31(vec3<f32>(block, 1.0, 5.0));
-	if (tk_h31(vec3<f32>(block, 2.0, 9.0)) > 0.8) {
-		roof = roof + 0.05;
-	}
-	if (up < roof) {
-		let wx = floor(fract(az * 30.0) * 4.0);
-		if (up > 0.0 && wx > 0.5 && tk_h31(vec3<f32>(block * 4.0 + wx, floor(up * 300.0), 4.0)) > lit_share) {
-			return tk_pal(P_WARM + 3);
-		}
-		return tk_pal(2);
-	}
-	// And farther: taller towers, paler.
-	let far_at = az * 13.0 + 3.3;
-	let far_block = floor(far_at);
-	var far_roof = 0.045 + 0.075 * tk_h31(vec3<f32>(far_block, 6.0, 2.0));
-	if (tk_h31(vec3<f32>(far_block, 3.0, 4.0)) > 0.7) {
-		far_roof = far_roof + 0.05;
-	}
-	let far_edge = abs(fract(far_at) - 0.5);
-	if (up < far_roof && far_edge < 0.42) {
-		let wx = floor(fract(far_at) * 7.0);
-		let wy = floor(up * 210.0);
-		if (far_edge < 0.34 && up < far_roof - 0.008 && tk_h31(vec3<f32>(far_block * 7.0 + wx, wy, 8.0)) > far_lit_share) {
-			if (night) {
-				return tk_pal(P_WARM + 2);
-			}
-			return tk_pal(8);
-		}
-		return tk_pal(3);
 	}
 	// A plane on its way in to Haneda: by day its body and a thinning trail,
 	// at night a red light and a white one that winks.
