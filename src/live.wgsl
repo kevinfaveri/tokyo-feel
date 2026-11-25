@@ -657,6 +657,9 @@ fn run(input: PassInput) -> vec4<f32> {
 	let first = lap - 1.0;
 	let round = i32(first - 7.0 * floor(first / 7.0));
 	g_prog = (f32(round) + ph / K_CYCLE) / 7.0;
+	if (lap < 1.0) {
+		g_prog = 0.0;
+	}
 	let bullet = (round & 1) == 1;
 	let freight = night && round == 4;
 	let odd = (((round + 1) / 2) & 1) == 1;
@@ -906,7 +909,13 @@ fn run(input: PassInput) -> vec4<f32> {
 	if (pa.y > 0.5) {
 		for (var i = 0; i < N_WHO; i = i + 1) {
 			let who = K_WHO[i];
-			if (!tk_cast(i, round)) {
+			// (Each walks back in, out of sight, late in a round, to wait
+			// for the next one. From then on the next round's cast counts.)
+			var cast_round = round;
+			if (ph > who.w) {
+				cast_round = (round + 1) % 7;
+			}
+			if (!tk_cast(i, cast_round)) {
 				continue;
 			}
 			let w = tk_path(i, ph);

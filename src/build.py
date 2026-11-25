@@ -153,7 +153,9 @@ worker = [(0, 0.35, -2.35, HERE), (15.5, 0.35, -2.35, HERE), (23.5, 0.35, 2.2, H
 student = [(0, -0.35, -2.5, HERE), (15.9, -0.35, -2.5, HERE), (24.0, -0.35, 2.15, HERE), (29.4, -3.5, 2.2, HERE),
            (29.5, 5.3, -2.78, HERE), (32.0, 5.3, -2.78, HERE), (41.6, -0.35, -2.78, HERE), (42.2, -0.35, -2.5, HERE),
            (CYCLE, -0.35, -2.5, HERE)]
-who = [(0, 1.0, 38, 0), (2, 0.62, 38, 0), (0, 0.95, 40, 0), (4, 1.0, 43, 0), (3, 1.02, 41, 0), (1, 0.9, 38, 0)]
+PARENT_OUT_OF_SIGHT, WALKER_OUT_OF_SIGHT, WORKER_OUT_OF_SIGHT, STUDENT_OUT_OF_SIGHT = 32.65, 33.05, 28.85, 29.45
+who = [(0, 1.0, 38, PARENT_OUT_OF_SIGHT), (2, 0.62, 38, PARENT_OUT_OF_SIGHT + 0.25), (0, 0.95, 40, WALKER_OUT_OF_SIGHT),
+       (4, 1.0, 43, WALKER_OUT_OF_SIGHT + 0.1), (3, 1.02, 41, WORKER_OUT_OF_SIGHT), (1, 0.9, 38, STUDENT_OUT_OF_SIGHT)]
 paths = [keys(parent), keys(beside(parent, 0.27, 0.1, 0.25)), keys(walker), keys(beside(walker, 0.3, -0.12, 0.1)),
          keys(worker), keys(student)]
 

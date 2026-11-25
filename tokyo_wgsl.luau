@@ -404,12 +404,12 @@ const K_HOUSE_H: array<vec4<f32>, 10> = array<vec4<f32>, 10>(
 const N_WHO: i32 = 6;
 const N_KEY: i32 = 9;
 const K_WHO: array<vec4<f32>, 6> = array<vec4<f32>, 6>(
-	vec4<f32>(0.0, 1.0, 38.0, 0.0),
-	vec4<f32>(2.0, 0.62, 38.0, 0.0),
-	vec4<f32>(0.0, 0.95, 40.0, 0.0),
-	vec4<f32>(4.0, 1.0, 43.0, 0.0),
-	vec4<f32>(3.0, 1.02, 41.0, 0.0),
-	vec4<f32>(1.0, 0.9, 38.0, 0.0)
+	vec4<f32>(0.0, 1.0, 38.0, 32.65),
+	vec4<f32>(2.0, 0.62, 38.0, 32.9),
+	vec4<f32>(0.0, 0.95, 40.0, 33.05),
+	vec4<f32>(4.0, 1.0, 43.0, 33.15),
+	vec4<f32>(3.0, 1.02, 41.0, 28.85),
+	vec4<f32>(1.0, 0.9, 38.0, 29.45)
 );
 const K_PATH: array<vec4<f32>, 54> = array<vec4<f32>, 54>(
 	vec4<f32>(0.0, -0.5, 1.55, -1.5708),
@@ -1366,12 +1366,12 @@ const K_HOUSE_H: array<vec4<f32>, 10> = array<vec4<f32>, 10>(
 const N_WHO: i32 = 6;
 const N_KEY: i32 = 9;
 const K_WHO: array<vec4<f32>, 6> = array<vec4<f32>, 6>(
-	vec4<f32>(0.0, 1.0, 38.0, 0.0),
-	vec4<f32>(2.0, 0.62, 38.0, 0.0),
-	vec4<f32>(0.0, 0.95, 40.0, 0.0),
-	vec4<f32>(4.0, 1.0, 43.0, 0.0),
-	vec4<f32>(3.0, 1.02, 41.0, 0.0),
-	vec4<f32>(1.0, 0.9, 38.0, 0.0)
+	vec4<f32>(0.0, 1.0, 38.0, 32.65),
+	vec4<f32>(2.0, 0.62, 38.0, 32.9),
+	vec4<f32>(0.0, 0.95, 40.0, 33.05),
+	vec4<f32>(4.0, 1.0, 43.0, 33.15),
+	vec4<f32>(3.0, 1.02, 41.0, 28.85),
+	vec4<f32>(1.0, 0.9, 38.0, 29.45)
 );
 const K_PATH: array<vec4<f32>, 54> = array<vec4<f32>, 54>(
 	vec4<f32>(0.0, -0.5, 1.55, -1.5708),
@@ -2186,6 +2186,9 @@ fn run(input: PassInput) -> vec4<f32> {
 	let first = lap - 1.0;
 	let round = i32(first - 7.0 * floor(first / 7.0));
 	g_prog = (f32(round) + ph / K_CYCLE) / 7.0;
+	if (lap < 1.0) {
+		g_prog = 0.0;
+	}
 	let bullet = (round & 1) == 1;
 	let freight = night && round == 4;
 	let odd = (((round + 1) / 2) & 1) == 1;
@@ -2435,7 +2438,13 @@ fn run(input: PassInput) -> vec4<f32> {
 	if (pa.y > 0.5) {
 		for (var i = 0; i < N_WHO; i = i + 1) {
 			let who = K_WHO[i];
-			if (!tk_cast(i, round)) {
+			// (Each walks back in, out of sight, late in a round, to wait
+			// for the next one. From then on the next round's cast counts.)
+			var cast_round = round;
+			if (ph > who.w) {
+				cast_round = (round + 1) % 7;
+			}
+			if (!tk_cast(i, cast_round)) {
 				continue;
 			}
 			let w = tk_path(i, ph);
