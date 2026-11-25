@@ -82,7 +82,7 @@ end
 
 -- Screen pixels per art pixel (on a Retina screen, half as many points).
 local SCREEN_PIXELS_PER_ART_PIXEL = { fine = 8, classic = 10, chunky = 14 }
-local FRAMES_PER_SECOND = { wall = 24, chat = 15 }
+local FRAMES_PER_SECOND = { wall = 12, chat = 10 }
 local DITHER_STRENGTH = 0.9
 local PETAL_COUNT = { few = 12, some = 26, many = 48 }
 local CHAT_ALPHA = {
@@ -105,7 +105,9 @@ local LATEST_CLIP_START_SECONDS = 0.6
 local LONGEST_CLIP_SECONDS = 70
 local VOLUME = { quiet = 0.3, normal = 0.6, loud = 1 }
 local OWN_CLIPS = "tokyo-feel/sounds/"
-local TICK_MS = 33
+-- (As often as the wallpaper draws a frame: a tick between frames would be
+-- a second of the programme nobody sees.)
+local TICK_MS = 83
 local SILENCE_AFTER_NO_SCENE_MS = 3000
 local PROGRAMMES_BEFORE_CLOCK_WRAPS = 12
 
